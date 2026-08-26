@@ -50,6 +50,7 @@ dependencies:
   timezone: ^0.10.0
   flutter_timezone: ^4.1.0
   wakelock_plus: ^1.5.2
+  audioplayers: ^6.8.1
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +72,10 @@ flutter:
     # Built by tool/build_helplines.py; refreshed with a release, never over
     # the network.
     - assets/helplines/
+    # The four breathing cues, rendered once with Qwen3-TTS VoiceDesign by
+    # tool/make_voice_cues.py. The platform narrator reads these like a
+    # notification; this voice was designed for the job.
+    - assets/voice/
 
   fonts:
     - family: AtkinsonHyperlegible
