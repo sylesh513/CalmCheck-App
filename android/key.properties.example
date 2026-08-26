@@ -1,0 +1,12 @@
+# Copy to android/key.properties and fill in. That file is gitignored: the
+# upload key belongs to whoever publishes the app, not to the repository.
+#
+#   keytool -genkey -v -keystore ~/calmcheck-upload.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+#
+# Losing this key means losing the ability to update the listing, so back the
+# .jks file up somewhere that is not this machine.
+storeFile=/absolute/path/to/calmcheck-upload.jks
+storePassword=
+keyAlias=upload
+keyPassword=

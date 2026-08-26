@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nothing is copied off this device by the system.
+
+  The privacy screen tells people that their care cards are stored on this
+  device only and that nothing is uploaded. Android's automatic backup would
+  copy card content into the user's Google account, which would make that
+  sentence untrue, so both cloud backup and device-to-device transfer are
+  turned off. It is also why the app says: if you delete it, that data is gone —
+  save a PDF of any card you want to keep.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </device-transfer>
+</data-extraction-rules>

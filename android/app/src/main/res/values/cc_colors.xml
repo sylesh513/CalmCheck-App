@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- CALM-light stock. The launch screen is the paper the card is printed on. -->
+    <color name="cc_stock">#F4EFE6</color>
+    <!-- The adaptive icon's ground is the ACUTE stock: the orb is a light in a
+         dark room, and the mask must never cut into the glow. -->
+    <color name="cc_icon_background">#121412</color>
+</resources>

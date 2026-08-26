@@ -1,0 +1,1948 @@
+{
+ "schema": 1,
+ "generated": "2026-08-23",
+ "emergencySource": "google/libphonenumber ShortNumberMetadata.xml (Apache-2.0), derived from ITU and national numbering plan administrators",
+ "crisisVerifiedOn": "2026-08-23",
+ "countries": {
+  "AD": {
+   "name": "Andorra",
+   "emergency": [
+    "112",
+    "110",
+    "116",
+    "118"
+   ]
+  },
+  "AE": {
+   "name": "United Arab Emirates",
+   "emergency": [
+    "999",
+    "112",
+    "997",
+    "998"
+   ]
+  },
+  "AF": {
+   "name": "Afghanistan",
+   "emergency": [
+    "100",
+    "102",
+    "119"
+   ]
+  },
+  "AG": {
+   "name": "Antigua and Barbuda",
+   "emergency": [
+    "911",
+    "999"
+   ]
+  },
+  "AI": {
+   "name": "Anguilla",
+   "emergency": [
+    "911"
+   ]
+  },
+  "AL": {
+   "name": "Albania",
+   "emergency": [
+    "112",
+    "127",
+    "128",
+    "129"
+   ]
+  },
+  "AM": {
+   "name": "Armenia",
+   "emergency": [
+    "101",
+    "102",
+    "103"
+   ]
+  },
+  "AO": {
+   "name": "Angola",
+   "emergency": [
+    "112",
+    "113",
+    "115"
+   ]
+  },
+  "AR": {
+   "name": "Argentina",
+   "emergency": [
+    "911",
+    "100",
+    "101",
+    "107"
+   ]
+  },
+  "AS": {
+   "name": "American Samoa",
+   "emergency": [
+    "911"
+   ]
+  },
+  "AT": {
+   "name": "Austria",
+   "emergency": [
+    "112",
+    "122",
+    "133",
+    "144"
+   ]
+  },
+  "AU": {
+   "name": "Australia",
+   "emergency": [
+    "000",
+    "112",
+    "106"
+   ],
+   "crisis": [
+    {
+     "name": "Lifeline",
+     "numbers": [
+      "13 11 14"
+     ],
+     "sub": "Crisis support and suicide prevention, 24 hours.",
+     "verified": "2026-08-23"
+    }
+   ]
+  },
+  "AW": {
+   "name": "Aruba",
+   "emergency": [
+    "911",
+    "100"
+   ]
+  },
+  "AX": {
+   "name": "Åland Islands",
+   "emergency": [
+    "112"
+   ]
+  },
+  "AZ": {
+   "name": "Azerbaijan",
+   "emergency": [
+    "112",
+    "101",
+    "102",
+    "103"
+   ]
+  },
+  "BA": {
+   "name": "Bosnia and Herzegovina",
+   "emergency": [
+    "122",
+    "123",
+    "124"
+   ]
+  },
+  "BB": {
+   "name": "Barbados",
+   "emergency": [
+    "911",
+    "211",
+    "311",
+    "511"
+   ]
+  },
+  "BD": {
+   "name": "Bangladesh",
+   "emergency": [
+    "999",
+    "100",
+    "101",
+    "102"
+   ]
+  },
+  "BE": {
+   "name": "Belgium",
+   "emergency": [
+    "112",
+    "100",
+    "101"
+   ]
+  },
+  "BF": {
+   "name": "Burkina Faso",
+   "emergency": [
+    "17",
+    "18"
+   ]
+  },
+  "BG": {
+   "name": "Bulgaria",
+   "emergency": [
+    "112",
+    "150",
+    "160",
+    "166"
+   ]
+  },
+  "BH": {
+   "name": "Bahrain",
+   "emergency": [
+    "999",
+    "199"
+   ]
+  },
+  "BI": {
+   "name": "Burundi",
+   "emergency": [
+    "112",
+    "113",
+    "117"
+   ]
+  },
+  "BJ": {
+   "name": "Benin",
+   "emergency": [
+    "112",
+    "114",
+    "116",
+    "117"
+   ]
+  },
+  "BL": {
+   "name": "Saint Barthélemy",
+   "emergency": [
+    "18"
+   ]
+  },
+  "BM": {
+   "name": "Bermuda",
+   "emergency": [
+    "911"
+   ]
+  },
+  "BN": {
+   "name": "Brunei",
+   "emergency": [
+    "991",
+    "993",
+    "995"
+   ]
+  },
+  "BO": {
+   "name": "Bolivia",
+   "emergency": [
+    "110",
+    "118",
+    "119"
+   ]
+  },
+  "BQ": {
+   "name": "Bonaire, Sint Eustatius and Saba",
+   "emergency": [
+    "911",
+    "112"
+   ]
+  },
+  "BR": {
+   "name": "Brazil",
+   "emergency": [
+    "190",
+    "911",
+    "112",
+    "128"
+   ]
+  },
+  "BS": {
+   "name": "Bahamas",
+   "emergency": [
+    "911",
+    "919"
+   ]
+  },
+  "BT": {
+   "name": "Bhutan",
+   "emergency": [
+    "112",
+    "110",
+    "113"
+   ]
+  },
+  "BW": {
+   "name": "Botswana",
+   "emergency": [
+    "999",
+    "911",
+    "997",
+    "998"
+   ]
+  },
+  "BY": {
+   "name": "Belarus",
+   "emergency": [
+    "112",
+    "101",
+    "102",
+    "103"
+   ]
+  },
+  "BZ": {
+   "name": "Belize",
+   "emergency": [
+    "911",
+    "90",
+    "990"
+   ]
+  },
+  "CA": {
+   "name": "Canada",
+   "emergency": [
+    "911",
+    "112"
+   ],
+   "crisis": [
+    {
+     "name": "Suicide Crisis Helpline",
+     "numbers": [
+      "988"
+     ],
+     "sub": "Call or text, in English and French, around the clock.",
+     "verified": "2026-08-23"
+    }
+   ]
+  },
+  "CC": {
+   "name": "Cocos (Keeling) Islands",
+   "emergency": [
+    "000",
+    "112"
+   ]
+  },
+  "CD": {
+   "name": "Congo (DRC)",
+   "emergency": [
+    "113",
+    "114",
+    "118",
+    "177"
+   ]
+  },
+  "CF": {
+   "name": "Central African Republic",
+   "emergency": [
+    "117",
+    "118",
+    "1220"
+   ]
+  },
+  "CG": {
+   "name": "Congo",
+   "emergency": [
+    "117",
+    "118"
+   ]
+  },
+  "CH": {
+   "name": "Switzerland",
+   "emergency": [
+    "112",
+    "117",
+    "118",
+    "144"
+   ]
+  },
+  "CI": {
+   "name": "Côte d’Ivoire",
+   "emergency": [
+    "111",
+    "110",
+    "170",
+    "180"
+   ]
+  },
+  "CK": {
+   "name": "Cook Islands",
+   "emergency": [
+    "999",
+    "996",
+    "998"
+   ]
+  },
+  "CL": {
+   "name": "Chile",
+   "emergency": [
+    "911",
+    "131",
+    "132",
+    "133"
+   ]
+  },
+  "CM": {
+   "name": "Cameroon",
+   "emergency": [
+    "13",
+    "17",
+    "113",
+    "117"
+   ]
+  },
+  "CN": {
+   "name": "China",
+   "emergency": [
+    "110",
+    "119",
+    "120"
+   ]
+  },
+  "CO": {
+   "name": "Colombia",
+   "emergency": [
+    "112",
+    "119",
+    "123",
+    "132"
+   ]
+  },
+  "CR": {
+   "name": "Costa Rica",
+   "emergency": [
+    "911",
+    "112"
+   ]
+  },
+  "CU": {
+   "name": "Cuba",
+   "emergency": [
+    "104",
+    "105",
+    "106"
+   ]
+  },
+  "CV": {
+   "name": "Cabo Verde",
+   "emergency": [
+    "130",
+    "131",
+    "132"
+   ]
+  },
+  "CW": {
+   "name": "Curaçao",
+   "emergency": [
+    "911",
+    "112"
+   ]
+  },
+  "CX": {
+   "name": "Christmas Island",
+   "emergency": [
+    "000",
+    "112"
+   ]
+  },
+  "CY": {
+   "name": "Cyprus",
+   "emergency": [
+    "112",
+    "199"
+   ]
+  },
+  "CZ": {
+   "name": "Czechia",
+   "emergency": [
+    "112",
+    "150",
+    "151",
+    "152"
+   ]
+  },
+  "DE": {
+   "name": "Germany",
+   "emergency": [
+    "112",
+    "110"
+   ],
+   "crisis": [
+    {
+     "name": "TelefonSeelsorge",
+     "numbers": [
+      "0800 111 0 111",
+      "116 123"
+     ],
+     "sub": "Free, anonymous and open around the clock.",
+     "verified": "2026-08-23"
+    }
+   ]
+  },
+  "DJ": {
+   "name": "Djibouti",
+   "emergency": [
+    "17",
+    "18"
+   ]
+  },
+  "DK": {
+   "name": "Denmark",
+   "emergency": [
+    "112",
+    "114"
+   ]
+  },
+  "DM": {
+   "name": "Dominica",
+   "emergency": [
+    "911",
+    "999",
+    "333"
+   ]
+  },
+  "DO": {
+   "name": "Dominican Republic",
+   "emergency": [
+    "911",
+    "112"
+   ]
+  },
+  "DZ": {
+   "name": "Algeria",
+   "emergency": [
+    "112",
+    "14",
+    "17"
+   ]
+  },
+  "EC": {
+   "name": "Ecuador",
+   "emergency": [
+    "911",
+    "112",
+    "101",
+    "102"
+   ]
+  },
+  "EE": {
+   "name": "Estonia",
+   "emergency": [
+    "112",
+    "110"
+   ]
+  },
+  "EG": {
+   "name": "Egypt",
+   "emergency": [
+    "122",
+    "123",
+    "180"
+   ]
+  },
+  "EH": {
+   "name": "Western Sahara",
+   "emergency": [
+    "15",
+    "19",
+    "177"
+   ]
+  },
+  "ER": {
+   "name": "Eritrea",
+   "emergency": [
+    "112",
+    "113",
+    "114",
+    "116"
+   ]
+  },
+  "ES": {
+   "name": "Spain",
+   "emergency": [
+    "112",
+    "085",
+    "088"
+   ]
+  },
+  "ET": {
+   "name": "Ethiopia",
+   "emergency": [
+    "911",
+    "91",
+    "92",
+    "93"
+   ]
+  },
+  "FI": {
+   "name": "Finland",
+   "emergency": [
+    "112"
+   ]
+  },
+  "FJ": {
+   "name": "Fiji",
+   "emergency": [
+    "911",
+    "917"
+   ]
+  },
+  "FK": {
+   "name": "Falkland Islands",
+   "emergency": [
+    "999"
+   ]
+  },
+  "FM": {
+   "name": "Micronesia",
+   "emergency": [
+    "911"
+   ]
+  },
+  "FO": {
+   "name": "Faroe Islands",
+   "emergency": [
+    "112",
+    "114"
+   ]
+  },
+  "FR": {
+   "name": "France",
+   "emergency": [
+    "112",
+    "15",
+    "17",
+    "18"
+   ],
+   "crisis": [
+    {
+     "name": "Numéro national de prévention du suicide",
+     "numbers": [
+      "3114"
+     ],
+     "sub": "Free and confidential, 24 hours a day.",
+     "verified": "2026-08-23"
+    }
+   ]
+  },
+  "GA": {
+   "name": "Gabon",
+   "emergency": [
+    "18",
+    "1300",
+    "1301",
+    "1302"
+   ]
+  },
+  "GB": {
+   "name": "United Kingdom",
+   "emergency": [
+    "999",
+    "112"
+   ],
+   "crisis": [
+    {
+     "name": "Samaritans",
+     "numbers": [
+      "116 123"
+     ],
+     "sub": "Free to call from any phone, any time of day or night.",
+     "verified": "2026-08-23"
+    }
+   ]
+  },
+  "GD": {
+   "name": "Grenada",
+   "emergency": [
+    "911"
+   ]
+  },
+  "GE": {
+   "name": "Georgia",
+   "emergency": [
+    "111",
+    "112",
+    "011",
+    "022"
+   ]
+  },
+  "GF": {
+   "name": "French Guiana",
+   "emergency": [
+    "15",
+    "17",
+    "18"
+   ]
+  },
+  "GG": {
+   "name": "Guernsey",
+   "emergency": [
+    "999",
+    "112"
+   ]
+  },
+  "GH": {
+   "name": "Ghana",
+   "emergency": [
+    "999",
+    "191",
+    "192",
+    "193"
+   ]
+  },
+  "GI": {
+   "name": "Gibraltar",
+   "emergency": [
+    "112",
+    "190",
+    "199"
+   ]
+  },
+  "GL": {
+   "name": "Greenland",
+   "emergency": [
+    "112"
+   ]
+  },
+  "GM": {
+   "name": "Gambia",
+   "emergency": [
+    "16",
+    "17",
+    "18",
+    "116"
+   ]
+  },
+  "GP": {
+   "name": "Guadeloupe",
+   "emergency": [
+    "15",
+    "17",
+    "18"
+   ]
+  },
+  "GR": {
+   "name": "Greece",
+   "emergency": [
+    "112",
+    "100",
+    "166",
+    "199"
+   ]
+  },
+  "GT": {
+   "name": "Guatemala",
+   "emergency": [
+    "110",
+    "120",
+    "123"
+   ]
+  },
+  "GU": {
+   "name": "Guam",
+   "emergency": [
+    "911"
+   ]
+  },
+  "GW": {
+   "name": "Guinea-Bissau",
+   "emergency": [
+    "113",
+    "117",
+    "118"
+   ]
+  },
+  "GY": {
+   "name": "Guyana",
+   "emergency": [
+    "911",
+    "912",
+    "913"
+   ]
+  },
+  "HK": {
+   "name": "Hong Kong",
+   "emergency": [
+    "999",
+    "112",
+    "992"
+   ]
+  },
+  "HN": {
+   "name": "Honduras",
+   "emergency": [
+    "199"
+   ]
+  },
+  "HR": {
+   "name": "Croatia",
+   "emergency": [
+    "112",
+    "93",
+    "94",
+    "192"
+   ]
+  },
+  "HT": {
+   "name": "Haiti",
+   "emergency": [
+    "114",
+    "118"
+   ]
+  },
+  "HU": {
+   "name": "Hungary",
+   "emergency": [
+    "112",
+    "104",
+    "105",
+    "107"
+   ]
+  },
+  "ID": {
+   "name": "Indonesia",
+   "emergency": [
+    "112",
+    "110",
+    "113",
+    "118"
+   ]
+  },
+  "IE": {
+   "name": "Ireland",
+   "emergency": [
+    "999",
+    "112"
+   ],
+   "crisis": [
+    {
+     "name": "Samaritans",
+     "numbers": [
+      "116 123"
+     ],
+     "sub": "Free to call from any phone, any time of day or night.",
+     "verified": "2026-08-23"
+    }
+   ]
+  },
+  "IL": {
+   "name": "Israel",
+   "emergency": [
+    "112",
+    "100",
+    "101",
+    "102"
+   ]
+  },
+  "IM": {
+   "name": "Isle of Man",
+   "emergency": [
+    "999"
+   ]
+  },
+  "IN": {
+   "name": "India",
+   "emergency": [
+    "112",
+    "100",
+    "101",
+    "102"
+   ],
+   "crisis": [
+    {
+     "name": "Tele-MANAS",
+     "numbers": [
+      "14416",
+      "1800-891-4416"
+     ],
+     "sub": "Government of India mental health helpline. Free, 24 hours, in English and 20 regional languages.",
+     "verified": "2026-08-23"
+    }
+   ]
+  },
+  "IQ": {
+   "name": "Iraq",
+   "emergency": [
+    "100",
+    "104",
+    "115",
+    "122"
+   ]
+  },
+  "IR": {
+   "name": "Iran",
+   "emergency": [
+    "112",
+    "911",
+    "110",
+    "115"
+   ]
+  },
+  "IS": {
+   "name": "Iceland",
+   "emergency": [
+    "112"
+   ]
+  },
+  "IT": {
+   "name": "Italy",
+   "emergency": [
+    "112",
+    "113",
+    "115",
+    "118"
+   ]
+  },
+  "JE": {
+   "name": "Jersey",
+   "emergency": [
+    "999",
+    "112"
+   ]
+  },
+  "JM": {
+   "name": "Jamaica",
+   "emergency": [
+    "911",
+    "112",
+    "110",
+    "119"
+   ]
+  },
+  "JO": {
+   "name": "Jordan",
+   "emergency": [
+    "112",
+    "911",
+    "191",
+    "192"
+   ]
+  },
+  "JP": {
+   "name": "Japan",
+   "emergency": [
+    "110",
+    "119"
+   ]
+  },
+  "KE": {
+   "name": "Kenya",
+   "emergency": [
+    "999",
+    "112",
+    "114"
+   ]
+  },
+  "KG": {
+   "name": "Kyrgyzstan",
+   "emergency": [
+    "101",
+    "102",
+    "103"
+   ]
+  },
+  "KH": {
+   "name": "Cambodia",
+   "emergency": [
+    "117",
+    "118",
+    "119",
+    "666"
+   ]
+  },
+  "KI": {
+   "name": "Kiribati",
+   "emergency": [
+    "192",
+    "193",
+    "194",
+    "195"
+   ]
+  },
+  "KM": {
+   "name": "Comoros",
+   "emergency": [
+    "17",
+    "18"
+   ]
+  },
+  "KN": {
+   "name": "Saint Kitts and Nevis",
+   "emergency": [
+    "911",
+    "999",
+    "333"
+   ]
+  },
+  "KP": {
+   "name": "North Korea",
+   "emergency": [
+    "112",
+    "119",
+    "819"
+   ]
+  },
+  "KR": {
+   "name": "South Korea",
+   "emergency": [
+    "112",
+    "119"
+   ]
+  },
+  "KW": {
+   "name": "Kuwait",
+   "emergency": [
+    "112"
+   ]
+  },
+  "KY": {
+   "name": "Cayman Islands",
+   "emergency": [
+    "911"
+   ]
+  },
+  "KZ": {
+   "name": "Kazakhstan",
+   "emergency": [
+    "112",
+    "101",
+    "102",
+    "103"
+   ]
+  },
+  "LA": {
+   "name": "Laos",
+   "emergency": [
+    "190",
+    "191",
+    "195"
+   ]
+  },
+  "LB": {
+   "name": "Lebanon",
+   "emergency": [
+    "999",
+    "112",
+    "140",
+    "175"
+   ]
+  },
+  "LC": {
+   "name": "Saint Lucia",
+   "emergency": [
+    "911",
+    "999"
+   ]
+  },
+  "LI": {
+   "name": "Liechtenstein",
+   "emergency": [
+    "112",
+    "117",
+    "118",
+    "144"
+   ]
+  },
+  "LK": {
+   "name": "Sri Lanka",
+   "emergency": [
+    "112",
+    "110",
+    "116",
+    "118"
+   ]
+  },
+  "LR": {
+   "name": "Liberia",
+   "emergency": [
+    "911",
+    "355"
+   ]
+  },
+  "LS": {
+   "name": "Lesotho",
+   "emergency": [
+    "112",
+    "115",
+    "117"
+   ]
+  },
+  "LT": {
+   "name": "Lithuania",
+   "emergency": [
+    "112",
+    "01",
+    "02",
+    "03"
+   ]
+  },
+  "LU": {
+   "name": "Luxembourg",
+   "emergency": [
+    "112",
+    "113"
+   ]
+  },
+  "LV": {
+   "name": "Latvia",
+   "emergency": [
+    "112",
+    "110",
+    "01",
+    "02"
+   ]
+  },
+  "LY": {
+   "name": "Libya",
+   "emergency": [
+    "190",
+    "191",
+    "193"
+   ]
+  },
+  "MA": {
+   "name": "Morocco",
+   "emergency": [
+    "15",
+    "19",
+    "177"
+   ]
+  },
+  "MC": {
+   "name": "Monaco",
+   "emergency": [
+    "112",
+    "15",
+    "17",
+    "18"
+   ]
+  },
+  "MD": {
+   "name": "Moldova",
+   "emergency": [
+    "112",
+    "901",
+    "902",
+    "903"
+   ]
+  },
+  "ME": {
+   "name": "Montenegro",
+   "emergency": [
+    "112",
+    "122",
+    "123",
+    "124"
+   ]
+  },
+  "MF": {
+   "name": "Saint Martin",
+   "emergency": [
+    "15",
+    "17",
+    "18"
+   ]
+  },
+  "MG": {
+   "name": "Madagascar",
+   "emergency": [
+    "17",
+    "18",
+    "117",
+    "118"
+   ]
+  },
+  "MH": {
+   "name": "Marshall Islands",
+   "emergency": [
+    "911"
+   ]
+  },
+  "MK": {
+   "name": "North Macedonia",
+   "emergency": [
+    "112",
+    "192",
+    "193",
+    "194"
+   ]
+  },
+  "ML": {
+   "name": "Mali",
+   "emergency": [
+    "15",
+    "17",
+    "18"
+   ]
+  },
+  "MM": {
+   "name": "Myanmar",
+   "emergency": [
+    "199"
+   ]
+  },
+  "MN": {
+   "name": "Mongolia",
+   "emergency": [
+    "100",
+    "101",
+    "102",
+    "103"
+   ]
+  },
+  "MO": {
+   "name": "Macao",
+   "emergency": [
+    "999"
+   ]
+  },
+  "MP": {
+   "name": "Northern Mariana Islands",
+   "emergency": [
+    "911"
+   ]
+  },
+  "MQ": {
+   "name": "Martinique",
+   "emergency": [
+    "112",
+    "15",
+    "17",
+    "18"
+   ]
+  },
+  "MR": {
+   "name": "Mauritania",
+   "emergency": [
+    "17",
+    "18"
+   ]
+  },
+  "MS": {
+   "name": "Montserrat",
+   "emergency": [
+    "911",
+    "999"
+   ]
+  },
+  "MT": {
+   "name": "Malta",
+   "emergency": [
+    "112"
+   ]
+  },
+  "MU": {
+   "name": "Mauritius",
+   "emergency": [
+    "999",
+    "114",
+    "115",
+    "995"
+   ]
+  },
+  "MV": {
+   "name": "Maldives",
+   "emergency": [
+    "102",
+    "118",
+    "119"
+   ]
+  },
+  "MW": {
+   "name": "Malawi",
+   "emergency": [
+    "999",
+    "199",
+    "997",
+    "998"
+   ]
+  },
+  "MX": {
+   "name": "Mexico",
+   "emergency": [
+    "911",
+    "060",
+    "065",
+    "066"
+   ]
+  },
+  "MY": {
+   "name": "Malaysia",
+   "emergency": [
+    "999",
+    "112"
+   ]
+  },
+  "MZ": {
+   "name": "Mozambique",
+   "emergency": [
+    "117",
+    "119",
+    "197",
+    "198"
+   ]
+  },
+  "NC": {
+   "name": "New Caledonia",
+   "emergency": [
+    "15",
+    "16",
+    "17",
+    "18"
+   ]
+  },
+  "NE": {
+   "name": "Niger",
+   "emergency": [
+    "15",
+    "17",
+    "18",
+    "118"
+   ]
+  },
+  "NF": {
+   "name": "Norfolk Island",
+   "emergency": [
+    "911",
+    "955",
+    "977"
+   ]
+  },
+  "NG": {
+   "name": "Nigeria",
+   "emergency": [
+    "199"
+   ]
+  },
+  "NI": {
+   "name": "Nicaragua",
+   "emergency": [
+    "115",
+    "118",
+    "120",
+    "128"
+   ]
+  },
+  "NL": {
+   "name": "Netherlands",
+   "emergency": [
+    "112",
+    "911"
+   ],
+   "crisis": [
+    {
+     "name": "113 Zelfmoordpreventie",
+     "numbers": [
+      "113",
+      "0800 0113"
+     ],
+     "sub": "Free and open around the clock.",
+     "verified": "2026-08-23"
+    }
+   ]
+  },
+  "NO": {
+   "name": "Norway",
+   "emergency": [
+    "112",
+    "110",
+    "113"
+   ]
+  },
+  "NP": {
+   "name": "Nepal",
+   "emergency": [
+    "112",
+    "100",
+    "101",
+    "102"
+   ]
+  },
+  "NR": {
+   "name": "Nauru",
+   "emergency": [
+    "111",
+    "112",
+    "110"
+   ]
+  },
+  "NU": {
+   "name": "Niue",
+   "emergency": [
+    "999"
+   ]
+  },
+  "NZ": {
+   "name": "New Zealand",
+   "emergency": [
+    "111"
+   ],
+   "crisis": [
+    {
+     "name": "1737 Need to talk?",
+     "numbers": [
+      "1737"
+     ],
+     "sub": "Call or text a trained counsellor, free, 24 hours.",
+     "verified": "2026-08-23"
+    }
+   ]
+  },
+  "OM": {
+   "name": "Oman",
+   "emergency": [
+    "1444",
+    "9999"
+   ]
+  },
+  "PA": {
+   "name": "Panama",
+   "emergency": [
+    "911"
+   ]
+  },
+  "PE": {
+   "name": "Peru",
+   "emergency": [
+    "105",
+    "116",
+    "117"
+   ]
+  },
+  "PF": {
+   "name": "French Polynesia",
+   "emergency": [
+    "15",
+    "17",
+    "18"
+   ]
+  },
+  "PG": {
+   "name": "Papua New Guinea",
+   "emergency": [
+    "000",
+    "111",
+    "110"
+   ]
+  },
+  "PH": {
+   "name": "Philippines",
+   "emergency": [
+    "911",
+    "112",
+    "117"
+   ]
+  },
+  "PK": {
+   "name": "Pakistan",
+   "emergency": [
+    "112",
+    "15",
+    "16",
+    "115"
+   ]
+  },
+  "PL": {
+   "name": "Poland",
+   "emergency": [
+    "999",
+    "112",
+    "997",
+    "998"
+   ]
+  },
+  "PM": {
+   "name": "Saint Pierre and Miquelon",
+   "emergency": [
+    "15",
+    "17",
+    "18"
+   ]
+  },
+  "PR": {
+   "name": "Puerto Rico",
+   "emergency": [
+    "911"
+   ]
+  },
+  "PS": {
+   "name": "Palestine",
+   "emergency": [
+    "100",
+    "101",
+    "102"
+   ]
+  },
+  "PT": {
+   "name": "Portugal",
+   "emergency": [
+    "112",
+    "115"
+   ]
+  },
+  "PW": {
+   "name": "Palau",
+   "emergency": [
+    "911"
+   ]
+  },
+  "PY": {
+   "name": "Paraguay",
+   "emergency": [
+    "911",
+    "128"
+   ]
+  },
+  "QA": {
+   "name": "Qatar",
+   "emergency": [
+    "999"
+   ]
+  },
+  "RE": {
+   "name": "Réunion",
+   "emergency": [
+    "112",
+    "15",
+    "17",
+    "18"
+   ]
+  },
+  "RO": {
+   "name": "Romania",
+   "emergency": [
+    "112"
+   ]
+  },
+  "RS": {
+   "name": "Serbia",
+   "emergency": [
+    "112",
+    "92",
+    "93",
+    "94"
+   ]
+  },
+  "RU": {
+   "name": "Russia",
+   "emergency": [
+    "112",
+    "01",
+    "02",
+    "03"
+   ]
+  },
+  "RW": {
+   "name": "Rwanda",
+   "emergency": [
+    "111",
+    "112"
+   ]
+  },
+  "SA": {
+   "name": "Saudi Arabia",
+   "emergency": [
+    "999",
+    "112",
+    "911",
+    "997"
+   ]
+  },
+  "SB": {
+   "name": "Solomon Islands",
+   "emergency": [
+    "999"
+   ]
+  },
+  "SC": {
+   "name": "Seychelles",
+   "emergency": [
+    "999"
+   ]
+  },
+  "SD": {
+   "name": "Sudan",
+   "emergency": [
+    "999"
+   ]
+  },
+  "SE": {
+   "name": "Sweden",
+   "emergency": [
+    "112"
+   ]
+  },
+  "SG": {
+   "name": "Singapore",
+   "emergency": [
+    "999",
+    "993",
+    "995"
+   ]
+  },
+  "SH": {
+   "name": "Saint Helena, Ascension and Tristan da Cunha",
+   "emergency": [
+    "999",
+    "911"
+   ]
+  },
+  "SI": {
+   "name": "Slovenia",
+   "emergency": [
+    "112",
+    "113"
+   ]
+  },
+  "SJ": {
+   "name": "Svalbard and Jan Mayen",
+   "emergency": [
+    "112",
+    "110",
+    "113"
+   ]
+  },
+  "SK": {
+   "name": "Slovakia",
+   "emergency": [
+    "112",
+    "150",
+    "155",
+    "158"
+   ]
+  },
+  "SL": {
+   "name": "Sierra Leone",
+   "emergency": [
+    "999",
+    "019"
+   ]
+  },
+  "SM": {
+   "name": "San Marino",
+   "emergency": [
+    "113",
+    "115",
+    "118"
+   ]
+  },
+  "SN": {
+   "name": "Senegal",
+   "emergency": [
+    "17",
+    "18"
+   ]
+  },
+  "SO": {
+   "name": "Somalia",
+   "emergency": [
+    "999",
+    "555",
+    "888"
+   ]
+  },
+  "SR": {
+   "name": "Suriname",
+   "emergency": [
+    "115"
+   ]
+  },
+  "SS": {
+   "name": "South Sudan",
+   "emergency": [
+    "999"
+   ]
+  },
+  "ST": {
+   "name": "Sao Tome and Principe",
+   "emergency": [
+    "112"
+   ]
+  },
+  "SV": {
+   "name": "El Salvador",
+   "emergency": [
+    "911",
+    "913"
+   ]
+  },
+  "SX": {
+   "name": "Sint Maarten",
+   "emergency": [
+    "919"
+   ]
+  },
+  "SY": {
+   "name": "Syria",
+   "emergency": [
+    "112",
+    "110",
+    "113"
+   ]
+  },
+  "SZ": {
+   "name": "Eswatini",
+   "emergency": [
+    "999"
+   ]
+  },
+  "TC": {
+   "name": "Turks and Caicos Islands",
+   "emergency": [
+    "911",
+    "999"
+   ]
+  },
+  "TD": {
+   "name": "Chad",
+   "emergency": [
+    "17",
+    "18"
+   ]
+  },
+  "TG": {
+   "name": "Togo",
+   "emergency": [
+    "117",
+    "118",
+    "171",
+    "172"
+   ]
+  },
+  "TH": {
+   "name": "Thailand",
+   "emergency": [
+    "191",
+    "199",
+    "1669"
+   ]
+  },
+  "TJ": {
+   "name": "Tajikistan",
+   "emergency": [
+    "112",
+    "101",
+    "102",
+    "103"
+   ]
+  },
+  "TL": {
+   "name": "Timor-Leste",
+   "emergency": [
+    "112",
+    "115"
+   ]
+  },
+  "TM": {
+   "name": "Turkmenistan",
+   "emergency": [
+    "01",
+    "02",
+    "03"
+   ]
+  },
+  "TN": {
+   "name": "Tunisia",
+   "emergency": [
+    "190",
+    "197",
+    "198"
+   ]
+  },
+  "TO": {
+   "name": "Tonga",
+   "emergency": [
+    "999",
+    "911",
+    "922",
+    "933"
+   ]
+  },
+  "TR": {
+   "name": "Türkiye",
+   "emergency": [
+    "112",
+    "110",
+    "155"
+   ]
+  },
+  "TT": {
+   "name": "Trinidad and Tobago",
+   "emergency": [
+    "999",
+    "990"
+   ]
+  },
+  "TV": {
+   "name": "Tuvalu",
+   "emergency": [
+    "911"
+   ]
+  },
+  "TW": {
+   "name": "Taiwan",
+   "emergency": [
+    "112",
+    "110",
+    "119"
+   ]
+  },
+  "TZ": {
+   "name": "Tanzania",
+   "emergency": [
+    "999",
+    "111",
+    "112",
+    "110"
+   ]
+  },
+  "UA": {
+   "name": "Ukraine",
+   "emergency": [
+    "112",
+    "101",
+    "102",
+    "103"
+   ]
+  },
+  "UG": {
+   "name": "Uganda",
+   "emergency": [
+    "999"
+   ]
+  },
+  "US": {
+   "name": "United States",
+   "emergency": [
+    "911",
+    "112"
+   ],
+   "crisis": [
+    {
+     "name": "988 Suicide & Crisis Lifeline",
+     "numbers": [
+      "988"
+     ],
+     "sub": "Call or text. Free and open around the clock.",
+     "verified": "2026-08-23"
+    }
+   ]
+  },
+  "UY": {
+   "name": "Uruguay",
+   "emergency": [
+    "911",
+    "128"
+   ]
+  },
+  "UZ": {
+   "name": "Uzbekistan",
+   "emergency": [
+    "01",
+    "02",
+    "03",
+    "001"
+   ]
+  },
+  "VA": {
+   "name": "Vatican City",
+   "emergency": [
+    "112",
+    "113",
+    "115",
+    "118"
+   ]
+  },
+  "VC": {
+   "name": "Saint Vincent and the Grenadines",
+   "emergency": [
+    "911",
+    "999"
+   ]
+  },
+  "VE": {
+   "name": "Venezuela",
+   "emergency": [
+    "911",
+    "112",
+    "171"
+   ]
+  },
+  "VG": {
+   "name": "British Virgin Islands",
+   "emergency": [
+    "911",
+    "999"
+   ]
+  },
+  "VI": {
+   "name": "U.S. Virgin Islands",
+   "emergency": [
+    "911"
+   ]
+  },
+  "VN": {
+   "name": "Vietnam",
+   "emergency": [
+    "113",
+    "114",
+    "115"
+   ]
+  },
+  "VU": {
+   "name": "Vanuatu",
+   "emergency": [
+    "112"
+   ]
+  },
+  "WF": {
+   "name": "Wallis and Futuna",
+   "emergency": [
+    "15",
+    "17",
+    "18"
+   ]
+  },
+  "WS": {
+   "name": "Samoa",
+   "emergency": [
+    "999",
+    "911",
+    "994",
+    "995"
+   ]
+  },
+  "YE": {
+   "name": "Yemen",
+   "emergency": [
+    "191",
+    "194",
+    "195",
+    "199"
+   ]
+  },
+  "YT": {
+   "name": "Mayotte",
+   "emergency": [
+    "112",
+    "15"
+   ]
+  },
+  "ZA": {
+   "name": "South Africa",
+   "emergency": [
+    "112"
+   ]
+  },
+  "ZM": {
+   "name": "Zambia",
+   "emergency": [
+    "999",
+    "112",
+    "991",
+    "993"
+   ]
+  },
+  "ZW": {
+   "name": "Zimbabwe",
+   "emergency": [
+    "999",
+    "112",
+    "993",
+    "994"
+   ]
+  }
+ }
+}

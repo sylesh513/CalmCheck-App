@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- CALM-dark stock: the same card, printed on dark stock. -->
+    <color name="cc_stock">#1B1A17</color>
+    <color name="cc_icon_background">#121412</color>
+</resources>

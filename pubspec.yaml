@@ -1,0 +1,95 @@
+name: calmcheck
+description: "Acute-moment readiness. Guided calm and care cards, fully offline."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # On-device storage. No accounts, no servers, nothing leaves the phone.
+  shared_preferences: ^2.3.3
+
+  # tel: links from the emergency contact rows and CRISIS-01.
+  url_launcher: ^6.3.1
+
+  # The QR panel on CARD-SHARE — rendered locally, never fetched.
+  qr_flutter: ^4.1.0
+
+  # CARD-SCAN.
+  mobile_scanner: ^7.1.4
+
+  # "Open a card file instead" — the fallback whenever the camera can't be used.
+  file_selector: ^1.0.3
+
+  # The optional photo on a care card. The file is copied into the app's own
+  # documents directory and never leaves the device.
+  image_picker: ^1.1.2
+
+  # CARD-PDF: the printable care card, A4 and US Letter.
+  pdf: ^3.11.1
+  printing: ^5.13.4
+  path_provider: ^2.1.5
+  share_plus: ^12.0.0
+
+  # Haptic patterns fired off the breath timeline.
+  vibration: ^3.1.6
+
+  # The guide voice — speaks the phase cues so eyes can stay closed.
+  flutter_tts: ^4.2.0
+
+  # Pro. Talks only to the App Store and Play Billing — no third-party
+  # subscription service, because nothing about a person may leave this device.
+  in_app_purchase: ^3.2.0
+
+  # The practice reminder. Scheduled by the OS, on this device; no push server.
+  flutter_local_notifications: ^19.0.0
+  timezone: ^0.10.0
+  flutter_timezone: ^4.1.0
+  wakelock_plus: ^1.5.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  # For the platform code this app owns rather than imports. Runs on a real
+  # device or simulator; see integration_test/platform_channels_test.dart.
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    # Also declared as assets so the print layout can load the same faces the
+    # screen uses — the paper card and the screen card are one artifact.
+    - assets/fonts/
+    # Emergency numbers for 237 territories and the verified crisis lines.
+    # Built by tool/build_helplines.py; refreshed with a release, never over
+    # the network.
+    - assets/helplines/
+
+  fonts:
+    - family: AtkinsonHyperlegible
+      fonts:
+        - asset: assets/fonts/AtkinsonHyperlegible-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/AtkinsonHyperlegible-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/AtkinsonHyperlegible-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/AtkinsonHyperlegible-BoldItalic.ttf
+          weight: 700
+          style: italic
+    - family: IBMPlexMono
+      fonts:
+        - asset: assets/fonts/IBMPlexMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBMPlexMono-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/IBMPlexMono-Bold.ttf
+          weight: 700
