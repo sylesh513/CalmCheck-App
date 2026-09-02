@@ -27,7 +27,8 @@ class CardScanScreen extends StatefulWidget {
   State<CardScanScreen> createState() => _CardScanScreenState();
 }
 
-class _CardScanScreenState extends State<CardScanScreen> {
+class _CardScanScreenState extends State<CardScanScreen>
+    with WidgetsBindingObserver {
   final MobileScannerController _controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
     formats: const [BarcodeFormat.qrCode],
@@ -37,9 +38,43 @@ class _CardScanScreenState extends State<CardScanScreen> {
   CareCardData? _found;
 
   @override
+  void initState() {
+    super.initState();
+    // Since mobile_scanner 5.x the widget no longer watches the app
+    // lifecycle itself: without this, backgrounding the app — or the
+    // expected round-trip through system settings to grant the camera —
+    // comes back to a frozen preview.
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
+    switch (lifecycle) {
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.hidden:
+        _controller.stop();
+      case AppLifecycleState.resumed:
+        if (_state == ScanState.scanning) {
+          _controller.start();
+        } else if (_state == ScanState.denied ||
+            _state == ScanState.noCamera) {
+          // Coming back from settings: the permission may have just been
+          // granted. Try again; a still-blocked camera re-raises the same
+          // state through the error builder.
+          setState(() => _state = ScanState.scanning);
+          _controller.start();
+        }
+      case AppLifecycleState.detached:
+        break;
+    }
   }
 
   void _onDetect(BarcodeCapture capture) {

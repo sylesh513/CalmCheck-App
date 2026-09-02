@@ -41,9 +41,11 @@ dependencies:
   # The guide voice — speaks the phase cues so eyes can stay closed.
   flutter_tts: ^4.2.0
 
-  # Pro. Talks only to the App Store and Play Billing — no third-party
-  # subscription service, because nothing about a person may leave this device.
-  in_app_purchase: ^3.2.0
+  # Pro. Purchases run through the store (App Store / Play Billing) and are
+  # validated by RevenueCat — the one network service this app talks to, and
+  # it only ever sees anonymous purchase state. Card content, contacts and
+  # usage never leave the device.
+  purchases_flutter: ^10.10.0
 
   # The practice reminder. Scheduled by the OS, on this device; no push server.
   flutter_local_notifications: ^19.0.0

@@ -30,10 +30,11 @@ class PrivacyScreen extends StatelessWidget {
               FieldLabel('Privacy and data'),
               const CcHeadline('Your data stays on this phone.'),
               const CcSub(
-                'CalmCheck has no accounts and no servers. Your care cards, '
-                'your settings, and everything you do in the app are stored on '
-                'this device only. Nothing is uploaded, nothing is tracked, and '
-                'nobody — including us — can see any of it.',
+                'CalmCheck has no accounts and no servers of ours. Your care '
+                'cards, your settings, and everything you do in the app are '
+                'stored on this device only. Nothing about you is uploaded '
+                'and nothing is tracked. The one network call the app ever '
+                'makes is checking a Pro purchase with the store.',
               ),
               const CcRule(),
               const _PrivacyGrid(),
@@ -61,15 +62,16 @@ class PrivacyScreen extends StatelessWidget {
   }
 }
 
-/// Four cells, four Nones. The claim is checkable at a glance.
+/// Four cells. The claim is checkable at a glance — and stays honest about
+/// the one network call that exists (purchase validation).
 class _PrivacyGrid extends StatelessWidget {
   const _PrivacyGrid();
 
   static const _cells = [
     ('Accounts', 'None'),
-    ('Servers', 'None'),
     ('Analytics', 'None'),
-    ('Network calls', 'None'),
+    ('Your data uploaded', 'Never'),
+    ('Network use', 'Purchases only'),
   ];
 
   @override

@@ -37,14 +37,30 @@ class Whereabouts {
 
 /// Null whenever location is unavailable, declined, switched off, or slow.
 /// Every one of those is an ordinary outcome, not an error to show anybody.
+///
+/// The timeout is the budget for the *fix*, not for the person: on a first
+/// use the OS permission dialog appears, and reading it takes longer than any
+/// sensible fix budget. So when a prompt is coming, the wait is extended —
+/// the dialog already holds their attention, and cutting it off used to throw
+/// away the location on exactly the occasion it was just granted.
 Future<Whereabouts?> currentWhereabouts({
   Duration timeout = const Duration(seconds: 8),
 }) async {
   if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) return null;
+
+  var promptComing = false;
+  try {
+    promptComing =
+        await _channel.invokeMethod<bool>('locationPromptNeeded') ?? false;
+  } catch (_) {
+    // An older native side without the method: keep the plain budget.
+  }
+  final budget = promptComing ? const Duration(seconds: 90) : timeout;
+
   try {
     final fix = await _channel
         .invokeMapMethod<String, double>('currentLocation')
-        .timeout(timeout);
+        .timeout(budget);
     final latitude = fix?['latitude'];
     final longitude = fix?['longitude'];
     if (latitude == null || longitude == null) return null;

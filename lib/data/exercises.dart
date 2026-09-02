@@ -107,4 +107,11 @@ const List<Exercise> exercises = [
   ),
 ];
 
-Exercise exerciseById(String id) => exercises.firstWhere((e) => e.id == id);
+/// Null for an id that no longer exists — a stale route argument must fall
+/// back to the library, not throw a StateError.
+Exercise? exerciseById(String id) {
+  for (final e in exercises) {
+    if (e.id == id) return e;
+  }
+  return null;
+}

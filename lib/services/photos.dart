@@ -35,3 +35,23 @@ File? photoFile(String? path) {
   final file = File(path);
   return file.existsSync() ? file : null;
 }
+
+/// Deletes a photo the app copied in, once no card points at it any more —
+/// replaced, removed, or on the card's deletion. Every copy is invisible
+/// storage the app promised lives only here, so it must not outlive its card.
+///
+/// Only files inside the app's own `card-photos/` directory are touched; a
+/// path from anywhere else is ignored.
+Future<void> deleteCardPhoto(String? path) async {
+  if (path == null) return;
+  try {
+    final dir = await getApplicationDocumentsDirectory();
+    final photos = '${dir.path}/card-photos';
+    if (!File(path).existsSync()) return;
+    if (!path.startsWith('$photos/')) return;
+    await File(path).delete();
+  } catch (_) {
+    // A photo that cannot be deleted right now is re-attempted the next time
+    // something replaces it; never worth surfacing.
+  }
+}

@@ -3,7 +3,7 @@
 /// The dataset is a file, not code: `assets/helplines/helplines.json`, built by
 /// `tool/build_helplines.py`. Refreshing the numbers is a data change and a
 /// release, never a network call — the crisis screen is exactly where somebody
-/// may have no signal, and the app has no internet permission to spend on it.
+/// may have no signal, and a crisis screen must never spend it on a fetch.
 ///
 /// Two different kinds of number live in it. Emergency services numbers come
 /// from Google's libphonenumber short-number metadata, which is ITU-derived and

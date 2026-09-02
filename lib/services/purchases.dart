@@ -1,16 +1,17 @@
-/// Pro, bought from the App Store or Play Billing directly.
+/// Pro, bought from the App Store or Play Billing, validated by RevenueCat.
 ///
-/// There is no subscription service in front of this and no receipt server
-/// behind it, because the promise on the privacy screen is that nothing about a
-/// person leaves the device. The cost of that is stated plainly in
-/// `docs/store-submission.md`: entitlement is verified against the store the
-/// device is already signed in to, and nowhere else.
+/// RevenueCat is the single network service this app talks to, and it only
+/// ever sees anonymous purchase state — an install-scoped random id and the
+/// store receipt. No account, no email, no card content, no usage data. The
+/// promise on the privacy screen is that nothing about a *person* leaves the
+/// device, and this keeps it.
 ///
 /// Two rules this file exists to keep:
 ///
-/// 1. **Pro never evaporates offline.** Entitlement is cached and is only
-///    withdrawn when the store explicitly answers "nothing active" — never
-///    because a query failed.
+/// 1. **Pro never evaporates offline.** Entitlement is cached (by this file
+///    and by the RevenueCat SDK's own on-device cache) and is only withdrawn
+///    when the backend explicitly answers "nothing active" — never because a
+///    query failed.
 /// 2. **If the store has no products, Pro is not offered at all.** A build
 ///    published before the products exist shows no paywall rather than a
 ///    paywall that cannot charge.
@@ -19,11 +20,19 @@ library;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:flutter/services.dart' show PlatformException;
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Must match the product identifiers configured in App Store Connect and the
-/// Play Console. See `docs/store-submission.md`.
+import 'revenuecat_keys.dart';
+
+/// The RevenueCat entitlement that gates every Pro feature. Must match the
+/// entitlement identifier configured in the RevenueCat dashboard.
+const String proEntitlementId = 'pro';
+
+/// Must match the product identifiers configured in App Store Connect, the
+/// Play Console, and attached to the RevenueCat offering. See
+/// `docs/store-submission.md`.
 class ProProductIds {
   const ProProductIds._();
 
@@ -41,9 +50,9 @@ enum StoreAvailability {
   /// Not asked yet.
   unknown,
 
-  /// The store answered and has nothing to sell here: no usable store, or the
-  /// products are not configured yet. Pro is not offered, and the app opens up
-  /// rather than shipping crippled.
+  /// The store answered and has nothing to sell here: no usable store, no
+  /// RevenueCat key in the build, or the products are not configured yet. Pro
+  /// is not offered, and the app opens up rather than shipping crippled.
   unavailable,
 
   /// The store could not be reached or the query threw. This is NOT the same
@@ -65,7 +74,7 @@ class ProProduct {
     required this.price,
     required this.rawPrice,
     required this.currencyCode,
-    required this.details,
+    this.package,
   });
 
   final String id;
@@ -75,7 +84,9 @@ class ProProduct {
   final String price;
   final double rawPrice;
   final String currencyCode;
-  final ProductDetails details;
+
+  /// The RevenueCat package behind this row. Null only in tests.
+  final Package? package;
 
   bool get isSubscription => ProProductIds.isSubscription(id);
 }
@@ -115,9 +126,8 @@ class Entitlement {
 }
 
 class PurchaseService extends ChangeNotifier {
-  PurchaseService({InAppPurchase? iap})
-    : _injected = iap,
-      _forcedAvailability = null,
+  PurchaseService()
+    : _forcedAvailability = null,
       _forcedPro = false;
 
   /// A service that never touches a store. Tests run on a host where the
@@ -128,8 +138,7 @@ class PurchaseService extends ChangeNotifier {
     StoreAvailability availability = StoreAvailability.unavailable,
     bool pro = false,
     this.products = const [],
-  }) : _injected = null,
-       _forcedAvailability = availability,
+  }) : _forcedAvailability = availability,
        _forcedPro = pro {
     // Applied at construction, not at init: a test asserts on gating before
     // any async work has had a chance to run.
@@ -137,27 +146,13 @@ class PurchaseService extends ChangeNotifier {
     if (pro) entitlement = const Entitlement(active: true, everPurchased: true);
   }
 
-  final InAppPurchase? _injected;
   final StoreAvailability? _forcedAvailability;
   final bool _forcedPro;
 
-  /// Resolved lazily: on a host without the plugin registered — a test, a
-  /// desktop build — reaching for the instance throws, and that must leave the
-  /// app running with Pro simply not for sale.
-  InAppPurchase? _resolved;
-
-  InAppPurchase? get _store {
-    if (_injected != null) return _injected;
-    if (_resolved != null) return _resolved;
-    try {
-      return _resolved = InAppPurchase.instance;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  StreamSubscription<List<PurchaseDetails>>? _sub;
   SharedPreferences? _prefs;
+  bool _configured = false;
+  bool _disposed = false;
+  void Function(CustomerInfo)? _customerInfoListener;
 
   StoreAvailability availability = StoreAvailability.unknown;
   PurchaseFlowState flow = PurchaseFlowState.idle;
@@ -186,6 +181,14 @@ class PurchaseService extends ChangeNotifier {
     return null;
   }
 
+  /// The per-platform RevenueCat public key. Empty means "not configured for
+  /// this build", which reads as a store with nothing to sell.
+  String get _apiKey => switch (defaultTargetPlatform) {
+    TargetPlatform.iOS || TargetPlatform.macOS => RevenueCatKeys.apple,
+    TargetPlatform.android => RevenueCatKeys.google,
+    _ => '',
+  };
+
   Future<void> init(SharedPreferences prefs) async {
     _prefs = prefs;
     _readCachedEntitlement(prefs);
@@ -196,74 +199,72 @@ class PurchaseService extends ChangeNotifier {
       if (_forcedPro) {
         entitlement = const Entitlement(active: true, everPurchased: true);
       }
-      notifyListeners();
+      _notify();
       return;
     }
 
-    final iap = _store;
-    if (iap == null) {
+    if (kIsWeb || _apiKey.isEmpty) {
       availability = StoreAvailability.unavailable;
-      notifyListeners();
+      _notify();
       return;
     }
 
-    // Listen before querying: a pending purchase from a previous launch can
-    // arrive the moment the connection opens.
-    _sub = iap.purchaseStream.listen(
-      _onPurchases,
-      onError: (Object e) {
-        flow = PurchaseFlowState.error;
-        errorMessage = _friendlyError(e);
-        notifyListeners();
-      },
-    );
-
-    bool storeReady = false;
     try {
-      storeReady = await iap.isAvailable();
+      await Purchases.configure(PurchasesConfiguration(_apiKey));
+      _configured = true;
     } catch (_) {
-      storeReady = false;
-    }
-    if (!storeReady) {
+      // No plugin on this host (tests, desktop), or a malformed key. Either
+      // way there is nothing to sell here; the app opens up.
       availability = StoreAvailability.unavailable;
-      notifyListeners();
+      _notify();
       return;
     }
 
-    await _loadProducts();
+    // Every CustomerInfo the SDK hears about — purchase, renewal, refund,
+    // restore on another screen — lands here. This is what both grants and
+    // withdraws Pro, on every platform, with no timers involved.
+    _customerInfoListener = _applyCustomerInfo;
+    Purchases.addCustomerInfoUpdateListener(_customerInfoListener!);
 
-    // Re-check entitlement against the store. Failures here are silent: the
-    // cached entitlement stands.
-    //
-    // iOS is excluded on purpose. StoreKit's restore can present an Apple-ID
-    // sign-in sheet, and a sign-in prompt on a cold start of a wellness app is
-    // both bad UX and a known App Store review snag. On iOS the entitlement is
-    // refreshed by the purchase stream and by the explicit "Restore purchases"
-    // button instead. Android's queryPurchasesAsync never prompts.
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      unawaited(_silentRestore());
-    }
+    await refresh();
   }
 
-  Future<void> _loadProducts() async {
+  /// (Re)ask RevenueCat for products and entitlement. Called at init, and
+  /// again from the paywall when a previous attempt left the store
+  /// unreachable — a launch without network must not disable buying Pro for
+  /// the whole session.
+  Future<void> refresh() async {
+    if (!_configured) return;
+
     try {
-      final response = await _store!.queryProductDetails(ProProductIds.all);
-      final found =
-          response.productDetails
-              .map(
-                (d) => ProProduct(
-                  id: d.id,
-                  title: d.title,
-                  price: d.price,
-                  rawPrice: d.rawPrice,
-                  currencyCode: d.currencyCode,
-                  details: d,
-                ),
-              )
-              .toList()
-            // Annual first, then monthly, then lifetime — the paywall reorders for
-            // the lifetime-anchor variant.
-            ..sort((a, b) => _rank(a.id).compareTo(_rank(b.id)));
+      final offerings = await Purchases.getOfferings();
+      final packages = <Package>[
+        ...?offerings.current?.availablePackages,
+        for (final o in offerings.all.values)
+          if (o.identifier != offerings.current?.identifier)
+            ...o.availablePackages,
+      ];
+
+      final found = <ProProduct>[];
+      final seen = <String>{};
+      for (final pkg in packages) {
+        final sp = pkg.storeProduct;
+        final id = _baseProductId(sp.identifier);
+        if (!ProProductIds.all.contains(id) || !seen.add(id)) continue;
+        found.add(
+          ProProduct(
+            id: id,
+            title: sp.title,
+            price: sp.priceString,
+            rawPrice: sp.price,
+            currencyCode: sp.currencyCode,
+            package: pkg,
+          ),
+        );
+      }
+      // Annual first, then monthly, then lifetime — the paywall reorders for
+      // the lifetime-anchor variant.
+      found.sort((a, b) => _rank(a.id).compareTo(_rank(b.id)));
 
       products = found;
       availability = found.isEmpty
@@ -274,8 +275,18 @@ class PurchaseService extends ChangeNotifier {
       // A failed query is not evidence that there is nothing to sell.
       availability = StoreAvailability.unreachable;
     }
-    notifyListeners();
+    _notify();
+
+    // Refresh entitlement from RevenueCat's cache (and network when it can).
+    // Failure is silent: the cached entitlement stands — rule 1.
+    try {
+      _applyCustomerInfo(await Purchases.getCustomerInfo());
+    } catch (_) {}
   }
+
+  /// Play's product ids arrive as `productId:basePlanId` on Android. The app
+  /// keys everything off the plain product id.
+  static String _baseProductId(String id) => id.split(':').first;
 
   static int _rank(String id) => switch (id) {
     ProProductIds.annual => 0,
@@ -285,118 +296,93 @@ class PurchaseService extends ChangeNotifier {
 
   Future<void> buy(String productId) async {
     final product = productFor(productId);
-    if (product == null) return;
+    final package = product?.package;
+    if (product == null || package == null) return;
 
     flow = PurchaseFlowState.pending;
     errorMessage = null;
-    notifyListeners();
+    _notify();
 
     try {
-      final param = PurchaseParam(productDetails: product.details);
-      // Subscriptions and lifetime are both non-consumable: neither is bought
-      // twice.
-      await _store!.buyNonConsumable(purchaseParam: param);
+      // On Android, switching between subscription plans must be a plan
+      // change, not a second parallel subscription — otherwise a monthly
+      // subscriber who taps annual is double-billed.
+      StoreProductChangeInfo? change;
+      final currentId = entitlement.productId;
+      if (defaultTargetPlatform == TargetPlatform.android &&
+          entitlement.active &&
+          currentId != null &&
+          currentId != productId &&
+          ProProductIds.isSubscription(currentId) &&
+          product.isSubscription) {
+        change = StoreProductChangeInfo(_baseProductId(currentId));
+      }
+
+      final result = await Purchases.purchase(
+        PurchaseParams.package(package, productChangeInfo: change),
+      );
+      _applyCustomerInfo(result.customerInfo, fromPurchase: true);
+      flow = PurchaseFlowState.idle;
+    } on PlatformException catch (e) {
+      final code = PurchasesErrorHelper.getErrorCode(e);
+      if (code == PurchasesErrorCode.purchaseCancelledError) {
+        // Backing out is not a failure and gets no error copy.
+        flow = PurchaseFlowState.idle;
+      } else {
+        flow = PurchaseFlowState.error;
+        errorMessage = _friendlyError(code);
+      }
     } catch (e) {
       flow = PurchaseFlowState.error;
-      errorMessage = _friendlyError(e);
-      notifyListeners();
+      errorMessage = _friendlyError(null);
     }
+    _notify();
   }
 
   Future<void> restore() async {
-    if (_store == null) return;
+    if (!_configured) return;
     flow = PurchaseFlowState.restoring;
     errorMessage = null;
-    notifyListeners();
+    _notify();
     try {
-      await _store!.restorePurchases();
-      // The stream delivers the results; give it a beat, then settle so the
-      // button cannot spin forever if there is nothing to restore.
-      Timer(const Duration(seconds: 4), () {
-        if (flow == PurchaseFlowState.restoring) {
-          flow = PurchaseFlowState.idle;
-          notifyListeners();
-        }
-      });
-    } catch (e) {
+      // Answers directly — no stream to wait on, no settle timer to race.
+      final info = await Purchases.restorePurchases();
+      _applyCustomerInfo(info);
+      flow = PurchaseFlowState.idle;
+    } on PlatformException catch (e) {
       flow = PurchaseFlowState.error;
-      errorMessage = _friendlyError(e);
-      notifyListeners();
-    }
-  }
-
-  /// A restore nobody asked for, run at launch to keep the cached entitlement
-  /// honest. It never surfaces an error and never revokes on failure.
-  Future<void> _silentRestore() async {
-    try {
-      _sawAnyActive = false;
-      _restoreWindowOpen = true;
-      await _store!.restorePurchases();
-      await Future<void>.delayed(const Duration(seconds: 3));
-      _restoreWindowOpen = false;
-
-      // The store answered and named nothing active: the subscription has
-      // lapsed or was refunded. This is the only path that withdraws Pro.
-      if (!_sawAnyActive && entitlement.active) {
-        _persistEntitlement(
-          entitlement.copyWith(active: false, lastVerified: DateTime.now()),
-        );
-      }
+      errorMessage = _friendlyError(PurchasesErrorHelper.getErrorCode(e));
     } catch (_) {
-      _restoreWindowOpen = false;
+      flow = PurchaseFlowState.error;
+      errorMessage = _friendlyError(null);
     }
+    _notify();
   }
 
-  bool _sawAnyActive = false;
-  bool _restoreWindowOpen = false;
+  /// The single writer of entitlement. Called only with a definitive answer
+  /// from RevenueCat, so withdrawing here never happens because of a failed
+  /// query — on any platform.
+  void _applyCustomerInfo(CustomerInfo info, {bool fromPurchase = false}) {
+    final active = info.entitlements.active[proEntitlementId];
+    final everHeld =
+        entitlement.everPurchased ||
+        info.entitlements.all.containsKey(proEntitlementId);
 
-  Future<void> _onPurchases(List<PurchaseDetails> purchases) async {
-    for (final purchase in purchases) {
-      switch (purchase.status) {
-        case PurchaseStatus.pending:
-          flow = PurchaseFlowState.pending;
-          notifyListeners();
+    final next = Entitlement(
+      active: active != null,
+      productId: active != null
+          ? _baseProductId(active.productIdentifier)
+          : entitlement.productId,
+      lastVerified: DateTime.now(),
+      everPurchased: everHeld || active != null,
+    );
 
-        case PurchaseStatus.purchased:
-        case PurchaseStatus.restored:
-          if (ProProductIds.all.contains(purchase.productID)) {
-            _sawAnyActive = true;
-            _persistEntitlement(
-              Entitlement(
-                active: true,
-                productId: purchase.productID,
-                lastVerified: DateTime.now(),
-                everPurchased: true,
-              ),
-            );
-            if (purchase.status == PurchaseStatus.purchased) {
-              justPurchased = true;
-            }
-          }
-          flow = PurchaseFlowState.idle;
-
-        case PurchaseStatus.error:
-          if (!_restoreWindowOpen) {
-            flow = PurchaseFlowState.error;
-            errorMessage = _friendlyError(purchase.error);
-          }
-
-        case PurchaseStatus.canceled:
-          // Backing out is not a failure and gets no error copy.
-          flow = PurchaseFlowState.idle;
-      }
-
-      // Every delivered purchase must be completed or the store will keep
-      // re-delivering it, and Play will refund it after three days.
-      if (purchase.pendingCompletePurchase) {
-        try {
-          await _store?.completePurchase(purchase);
-        } catch (_) {
-          // Retried on the next delivery.
-        }
-      }
+    final becamePro = !entitlement.active && next.active;
+    _persistEntitlement(next);
+    if (fromPurchase && becamePro) {
+      justPurchased = true;
+      _notify();
     }
-    notifyListeners();
   }
 
   void _readCachedEntitlement(SharedPreferences prefs) {
@@ -412,22 +398,30 @@ class PurchaseService extends ChangeNotifier {
     entitlement = next;
     final prefs = _prefs;
     if (prefs != null) {
-      prefs.setBool(_keyActive, next.active);
-      prefs.setBool(_keyEver, next.everPurchased);
-      if (next.productId != null) prefs.setString(_keyProduct, next.productId!);
-      if (next.lastVerified != null) {
-        prefs.setString(_keyVerified, next.lastVerified!.toIso8601String());
-      }
+      // Awaited as a unit so a failed write is at least visible in the zone
+      // log rather than silently dropped mid-sequence.
+      unawaited(
+        Future.wait<bool>([
+          prefs.setBool(_keyActive, next.active),
+          prefs.setBool(_keyEver, next.everPurchased),
+          if (next.productId != null)
+            prefs.setString(_keyProduct, next.productId!),
+          if (next.lastVerified != null)
+            prefs.setString(
+              _keyVerified,
+              next.lastVerified!.toIso8601String(),
+            ),
+        ]),
+      );
     }
-    notifyListeners();
+    _notify();
   }
 
   /// Errors say what happened and never apologise. "Nothing has been charged"
   /// is the part that matters to somebody staring at a failed purchase.
-  String _friendlyError(Object? error) {
-    final raw = error is IAPError ? '${error.code} ${error.message}' : '$error';
-    if (raw.toLowerCase().contains('network') ||
-        raw.toLowerCase().contains('timeout')) {
+  String _friendlyError(PurchasesErrorCode? code) {
+    if (code == PurchasesErrorCode.networkError ||
+        code == PurchasesErrorCode.offlineConnectionError) {
       return 'The store could not be reached. Nothing has been charged. '
           'Everything free keeps working without it.';
     }
@@ -439,16 +433,26 @@ class PurchaseService extends ChangeNotifier {
     if (flow != PurchaseFlowState.error) return;
     flow = PurchaseFlowState.idle;
     errorMessage = null;
-    notifyListeners();
+    _notify();
   }
 
   void acknowledgePurchase() {
     justPurchased = false;
   }
 
+  /// Listeners can outlive an async gap; a notification after dispose is an
+  /// assertion in debug and a wasted call in release.
+  void _notify() {
+    if (!_disposed) notifyListeners();
+  }
+
   @override
   void dispose() {
-    _sub?.cancel();
+    _disposed = true;
+    final listener = _customerInfoListener;
+    if (listener != null) {
+      Purchases.removeCustomerInfoUpdateListener(listener);
+    }
     super.dispose();
   }
 }

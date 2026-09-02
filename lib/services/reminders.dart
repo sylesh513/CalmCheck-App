@@ -1,7 +1,7 @@
 /// The practice reminder: an occasional nudge to practise while you're calm.
 ///
 /// Scheduled by the operating system on this device. There is no push service
-/// and no server — the app has no network permission at all, so a reminder is
+/// and no server — the app never talks to a push service, so a reminder is
 /// the one thing here that reaches out, and it reaches no further than the
 /// notification shade.
 ///
@@ -155,9 +155,16 @@ class CcReminders {
 
   tz.TZDateTime _nextInstance(int weekday, int hour) {
     final now = tz.TZDateTime.now(tz.local);
-    var next = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour);
+    // Walk the *date components* forward and rebuild the instant each day.
+    // Adding Duration(days: 1) to a TZDateTime is UTC arithmetic: stepping
+    // across a DST change shifts the wall-clock hour by ±1, and because the
+    // schedule repeats on dayOfWeekAndTime, that wrong hour would then repeat
+    // every week until rescheduled.
+    var day = tz.TZDateTime(tz.local, now.year, now.month, now.day);
+    var next = tz.TZDateTime(tz.local, day.year, day.month, day.day, hour);
     while (next.weekday != weekday || !next.isAfter(now)) {
-      next = next.add(const Duration(days: 1));
+      day = tz.TZDateTime(tz.local, day.year, day.month, day.day + 1);
+      next = tz.TZDateTime(tz.local, day.year, day.month, day.day, hour);
     }
     return next;
   }

@@ -64,6 +64,11 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<!-- Required with a portrait-only iPad orientation set: an iPad build
+	     that does not support all four orientations must opt out of
+	     multitasking, or App Store Connect rejects the binary at upload. -->
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>CalmCheck uses the camera only to scan a care card's QR code. Nothing is recorded and no image leaves this device.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

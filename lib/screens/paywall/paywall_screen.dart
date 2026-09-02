@@ -49,7 +49,14 @@ class _PaywallScreenState extends State<PaywallScreen> {
   void initState() {
     super.initState();
     if (!widget.isPreview) {
-      context.appRead.purchases.clearError();
+      final purchases = context.appRead.purchases;
+      purchases.clearError();
+      // A launch without network must not disable buying Pro for the whole
+      // session: landing here is the moment to ask the store again.
+      if (purchases.availability == StoreAvailability.unreachable ||
+          purchases.availability == StoreAvailability.unknown) {
+        purchases.refresh();
+      }
     }
   }
 
@@ -99,7 +106,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
     // ---- The real thing --------------------------------------------------
     if (purchases.entitlement.active) return const _AlreadyPro();
 
-    if (!app.proOffered) return const _StoreUnavailable();
+    if (!app.proOffered) {
+      return _StoreUnavailable(
+        onRetry: purchases.availability == StoreAvailability.unreachable
+            ? purchases.refresh
+            : null,
+      );
+    }
 
     final prices = [
       for (final p in purchases.products)
@@ -302,9 +315,12 @@ class _AlreadyPro extends StatelessWidget {
 }
 
 /// No store, or no products configured yet. Say so plainly and get out of the
-/// way — nothing free is affected.
+/// way — nothing free is affected. When the cause was an unreachable store,
+/// offer to ask again rather than requiring an app restart.
 class _StoreUnavailable extends StatelessWidget {
-  const _StoreUnavailable();
+  const _StoreUnavailable({this.onRetry});
+
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -323,12 +339,24 @@ class _StoreUnavailable extends StatelessWidget {
               const FreeForeverBlock(),
             ],
           ),
-          CcButton(
-            'Back',
-            variant: CcButtonVariant.secondary,
-            size: CcButtonSize.lg,
-            fullWidth: true,
-            onPressed: () => Navigator.of(context).maybePop(),
+          CcStack(
+            gap: CcGap.sm,
+            children: [
+              if (onRetry != null)
+                CcButton(
+                  'Try again',
+                  size: CcButtonSize.lg,
+                  fullWidth: true,
+                  onPressed: onRetry,
+                ),
+              CcButton(
+                'Back',
+                variant: CcButtonVariant.secondary,
+                size: CcButtonSize.lg,
+                fullWidth: true,
+                onPressed: () => Navigator.of(context).maybePop(),
+              ),
+            ],
           ),
         ],
       ),

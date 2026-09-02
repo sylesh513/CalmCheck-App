@@ -151,8 +151,13 @@ class SettingsScreen extends StatelessWidget {
                 explanation:
                     'Already paid on another device? Bring Pro back on this '
                     'one.',
-                onTap: () =>
-                    Navigator.of(context).pushNamed(Routes.manageSubscription),
+                // The row does what it says: it restores. It also opens the
+                // subscription screen, which shows the restore's progress and
+                // outcome.
+                onTap: () {
+                  app.purchases.restore();
+                  Navigator.of(context).pushNamed(Routes.manageSubscription);
+                },
               ),
               const CcRule(),
               NavRow(

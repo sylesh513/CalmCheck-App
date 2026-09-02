@@ -19,19 +19,23 @@
 # ---- Local notifications --------------------------------------------------
 # Receivers and the Gson-serialised scheduled-notification payload.
 -keep class com.dexterous.** { *; }
--keep class * extends android.app.NotificationChannel { *; }
 -keepattributes *Annotation*
 -keepclassmembers class ** {
     @com.google.gson.annotations.SerializedName <fields>;
 }
+# R8 full mode strips TypeToken's generic signature without these, and Gson
+# then throws "Missing type parameter" deserialising the scheduled-reminder
+# payload — a release-only crash, worst on the reboot re-scheduling path.
+# These two rules are required by flutter_local_notifications' own docs.
+-keep class com.google.gson.reflect.TypeToken
+-keep class * extends com.google.gson.reflect.TypeToken
 -dontwarn com.google.gson.**
 
-# ---- Play Billing (in_app_purchase) ---------------------------------------
+# ---- Play Billing (purchases_flutter / RevenueCat) -------------------------
 -keep class com.android.billingclient.** { *; }
 -dontwarn com.android.billingclient.**
-
-# ---- Text to speech -------------------------------------------------------
--keep class android.speech.tts.** { *; }
+-keep class com.revenuecat.purchases.** { *; }
+-dontwarn com.revenuecat.purchases.**
 
 # R8 in full mode strips these annotations otherwise, and the plugins above
 # read them.

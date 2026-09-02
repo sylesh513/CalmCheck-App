@@ -7,6 +7,7 @@ library;
 
 import 'dart:io';
 
+import 'package:calmcheck/models/care_card.dart';
 import 'package:calmcheck/services/card_repository.dart';
 import 'package:calmcheck/services/purchases.dart';
 import 'package:calmcheck/state/app_state.dart';
@@ -55,10 +56,18 @@ void main() {
       expect(app.proStatus, ProStatus.subscribed);
     });
 
-    test('while the store is still being asked, nothing is locked', () async {
+    test('while the store is still being asked, gates stay closed', () async {
       final app = await boot(store: StoreAvailability.unknown);
       expect(app.proOffered, isFalse, reason: 'do not offer what is unknown');
-      expect(app.isPro, isTrue, reason: 'and never lock on a maybe');
+      expect(
+        app.isPro,
+        isFalse,
+        reason:
+            'an unanswered store grants nothing — otherwise every cold start '
+            'unlocked Pro for as long as the query took. A subscriber is '
+            'covered by the cached entitlement, not by this window.',
+      );
+      expect(app.canCreateCard, isTrue, reason: 'the first card stays free');
     });
   });
 
@@ -71,10 +80,26 @@ void main() {
       expect(app.canCreateCard, isTrue);
     });
 
+    test('the sample cards do not use up the free slot', () async {
+      final app = await boot(store: StoreAvailability.available);
+      expect(app.cards, isNotEmpty, reason: 'a fresh install is seeded');
+      expect(
+        app.canCreateCard,
+        isTrue,
+        reason:
+            'the seeded examples are not cards the person created — a new '
+            'install must not route "create your first card" to the paywall',
+      );
+    });
+
     test('a lapsed subscription keeps every card readable', () async {
       final app = await boot(
         store: StoreAvailability.available,
         prefs: const {'proEverPurchased': true},
+      );
+      // The person made a card of their own while subscribed.
+      app.upsertCard(
+        CareCardData(id: 'card-own', name: 'Nan', preparedAt: DateTime.now()),
       );
       expect(app.proStatus, ProStatus.expired);
       expect(app.cards, isNotEmpty, reason: 'nothing is taken away');

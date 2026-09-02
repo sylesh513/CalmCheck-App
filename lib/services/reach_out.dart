@@ -21,7 +21,9 @@ import '../models/personal_contact.dart';
 import 'dialer.dart';
 import 'whereabouts.dart';
 
-Future<void> callPerson(PersonalContact contact) => dial(contact.number);
+/// True when the hand-off to the dialler happened, so the caller can say so
+/// when it did not.
+Future<bool> callPerson(PersonalContact contact) => dial(contact.number);
 
 /// The words. Short, because it will be read on a lock screen by somebody who
 /// has just been startled, and it has to say the three things that matter:

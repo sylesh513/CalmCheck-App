@@ -48,8 +48,16 @@ class HomeScreen extends StatelessWidget {
                         CcSpace.md,
                       ),
                       child: PanicButton(
-                        onPressed: () =>
-                            Navigator.of(context).pushNamed(Routes.panicPacer),
+                        // A fast double-tap must not stack two live pacers:
+                        // the pacer's route is translucent, so the one
+                        // underneath would keep firing haptics and voice out
+                        // of phase with the one on top.
+                        onPressed: () {
+                          final navigator = Navigator.of(context);
+                          final alreadyUp = ModalRoute.of(context)?.isCurrent;
+                          if (alreadyUp == false) return;
+                          navigator.pushNamed(Routes.panicPacer);
+                        },
                       ),
                     ),
                   ),

@@ -117,6 +117,17 @@ class _ReachPersonState extends State<ReachPerson> {
   bool _preparing = false;
   String? _note;
 
+  Future<void> _call() async {
+    CcHaptics.instance.fire(CcHaptic.emergency);
+    final ok = await callPerson(widget.person);
+    if (!mounted || ok) return;
+    // A silent crisis button is the one failure this surface may never have.
+    setState(() {
+      _note = "This device can't place calls. Texting still works — or dial "
+          '${widget.person.number} from any phone.';
+    });
+  }
+
   Future<void> _text() async {
     if (_preparing) return;
     final app = context.appRead;
@@ -160,10 +171,7 @@ class _ReachPersonState extends State<ReachPerson> {
             label: 'Call $name, your emergency contact',
             excludeSemantics: true,
             child: InkWell(
-              onTap: () {
-                CcHaptics.instance.fire(CcHaptic.emergency);
-                callPerson(widget.person);
-              },
+              onTap: _call,
               borderRadius: t.cardBorderRadius,
               child: Container(
                 width: double.infinity,
@@ -288,7 +296,10 @@ class CallCareContact extends StatelessWidget {
         child: InkWell(
           onTap: () {
             CcHaptics.instance.fire(CcHaptic.emergency);
-            dial(contact.number!);
+            // Total by construction (the fallback filter guarantees a
+            // number), and never silent on a device without a dialler.
+            final number = contact.number ?? '';
+            if (number.isNotEmpty) dialOrExplain(context, number);
           },
           borderRadius: t.cardBorderRadius,
           child: Container(

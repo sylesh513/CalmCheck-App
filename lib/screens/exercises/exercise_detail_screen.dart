@@ -22,7 +22,8 @@ class ExerciseDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final app = context.app;
-    final ex = exerciseById(exerciseId);
+    // The route already validates the id; this is the belt to its braces.
+    final ex = exerciseById(exerciseId) ?? exercises.first;
     final locked = !ex.isFree && !app.isPro;
 
     return CalmScaffold(

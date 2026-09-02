@@ -10,10 +10,10 @@ code they will ask about. Work top to bottom the first time.
 | | |
 |---|---|
 | Android application id | `app.calmcheck` (debug builds install as `app.calmcheck.debug`) |
-| iOS bundle id | set in Xcode; use `app.calmcheck` to match |
+| iOS bundle id | `app.calmcheck` (set in the Xcode project; matches Android) |
 | Display name | CalmCheck |
 | Version | `pubspec.yaml` `version: 1.0.0+1` — the part before `+` is the public version, after it the build number |
-| Minimum OS | Android 6.0 (API 23), iOS 14.0 |
+| Minimum OS | Android 7.0 (API 24 — Flutter's floor wins over the Gradle `minSdk 23` line), iOS 14.0 |
 
 Bump the build number on every upload, even a rejected one.
 
@@ -56,17 +56,35 @@ belong to one subscription group so a person can move between them. If you want
 the free trial the design describes, add a 7-day introductory offer to the
 annual plan — the app does not fabricate one.
 
-**Until these exist, the app hides Pro entirely** and unlocks every Pro feature,
-so a build submitted before the products are live is a complete app rather than
-one with a paywall that cannot charge. That is deliberate: it means you can ship
-1.0 without monetisation and turn it on later with no code change.
+**RevenueCat.** Purchases are validated by RevenueCat (`purchases_flutter`).
+One-time setup in the [RevenueCat dashboard](https://app.revenuecat.com):
 
-There is no receipt server. Entitlement is whatever the store the device is
-signed into reports, cached locally so that Pro never disappears when the phone
-is offline, and withdrawn only when the store explicitly answers "nothing
-active". This is a deliberate trade for the app's no-server promise; it is
-weaker against a determined jailbroken device and stronger against everything
-else.
+1. Create a project with an iOS app (bundle id `app.calmcheck`) and an Android
+   app (package `app.calmcheck`), attaching the App Store Connect API key and
+   the Play service credentials it asks for.
+2. Add the three products above and attach all of them to a single
+   entitlement whose identifier is exactly **`pro`**
+   (`proEntitlementId` in `lib/services/purchases.dart`).
+3. Create an offering (the default one is fine) containing an annual, a
+   monthly, and a lifetime package pointing at those products.
+4. Put the two **public** SDK keys into `lib/services/revenuecat_keys.dart`,
+   or pass them at build time:
+   `--dart-define=RC_APPLE_KEY=appl_… --dart-define=RC_GOOGLE_KEY=goog_…`
+
+RevenueCat sees an anonymous install id and receipts — never a name, an email,
+or card content. It is the app's only network dependency, and the privacy
+policy says so in matching words.
+
+**Until the keys and products exist, the app hides Pro entirely** and unlocks
+every Pro feature, so a build submitted before the products are live is a
+complete app rather than one with a paywall that cannot charge. That is
+deliberate: it means you can ship 1.0 without monetisation and turn it on later
+with no code change — but it also means **a release build with an empty key
+gives Pro away**; check the keys before every upload.
+
+Entitlement is cached locally so that Pro never disappears when the phone is
+offline, and is withdrawn only when RevenueCat definitively answers "nothing
+active" — never because a query failed.
 
 ---
 
@@ -88,29 +106,36 @@ The honest answers, which are also the short ones.
 
 **Google Play — Data safety**
 
-- Does your app collect or share any of the required user data types? **No.**
+- Does your app collect or share any of the required user data types?
+  - **Purchase history: collected** (not shared, not linked to identity, not
+    used for tracking) — RevenueCat processes store receipts to validate Pro.
+    Encrypted in transit: **yes**. Deletion: covered by the RevenueCat data
+    deletion process; nothing else exists to delete.
+  - Everything else: **No.**
   - *Location:* the app reads a coarse fix only while somebody is tapping "text
     my person", puts a map link into a message they compose, and keeps nothing.
     It is not transmitted to the developer and not stored, so it is neither
     collected nor shared under Play's definitions. Prominent disclosure is on
     the setting itself and on the screen that uses it.
-- Is all of the user data encrypted in transit? *Not applicable — no data is
-  transmitted.*
-- Do you provide a way for users to request that their data is deleted?
-  *Not applicable — data never leaves the device; deleting the app deletes it.*
+  - *Diagnostics:* the bundled ML Kit barcode library (the QR scanner) may
+    send anonymous diagnostic counters to Google; declare **Diagnostics —
+    collected, optional, not linked** if the reviewer asks about it.
 
 **Apple — App Privacy**
 
 - Data used to track you: **None.**
 - Data linked to you: **None.**
-- Data not linked to you: **None.**
+- Data not linked to you: **Purchase history** (app functionality only) —
+  RevenueCat validates receipts against an anonymous install id. RevenueCat's
+  own privacy manifest ships in its pod and App Store Connect aggregates it
+  automatically.
   - *Precise location* is used but not collected: it goes into a message the
     person composes in their own Messages app and is not retained. This is
     reflected in `ios/Runner/PrivacyInfo.xcprivacy`.
 
-If the console insists on a purchase category: purchases are processed by the
-store, and the app receives only a yes/no entitlement. It never sees a name, an
-email or a payment detail.
+Purchases are processed by the store and validated by RevenueCat; the app
+receives a yes/no entitlement. It never sees a name, an email or a payment
+detail.
 
 **Advertising ID:** not used. The app declares no `AD_ID` permission.
 
@@ -132,8 +157,9 @@ email or a payment detail.
 
 Paste something like this into both review forms.
 
-> CalmCheck is an offline wellness app. It has no account, no server and no
-> analytics, and on Android it does not request the INTERNET permission at all.
+> CalmCheck is an offline-first wellness app. It has no account and no
+> analytics. The only network use is validating the Pro in-app purchase
+> (RevenueCat); everything a person puts into the app stays on the device.
 >
 > No sign-in is needed to review it. Two example care cards are present on first
 > launch so every screen has content.
@@ -189,7 +215,7 @@ screenshots. The order the design specifies, because the order is the pitch:
 ## 9. Building
 
 ```bash
-flutter test                                  # 225 tests
+flutter test                                  # 226 tests
 flutter build appbundle --release             # the Play upload
 flutter build apk --release --split-per-abi   # sideloadable, for testers
 flutter build ipa --release                   # needs full Xcode

@@ -21,7 +21,11 @@
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
-    <!-- Deliberately absent: INTERNET. Nothing leaves this device. -->
+    <!-- Network access exists for exactly one job: validating Pro purchases
+         with the store via RevenueCat (and the QR scanner's Google ML Kit
+         library declares it too). Card content, contacts and usage never
+         leave this device — see the in-app privacy policy. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:label="CalmCheck"
@@ -109,6 +113,12 @@
         <intent>
             <action android:name="android.intent.action.VIEW"/>
             <data android:scheme="https"/>
+        </intent>
+        <!-- flutter_tts binds and enumerates TTS engines. Without this,
+             engine discovery fails silently on Android 11+ and the breathing
+             guide voice degrades in release builds. -->
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE"/>
         </intent>
     </queries>
 </manifest>

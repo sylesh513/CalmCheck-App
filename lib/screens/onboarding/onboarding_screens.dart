@@ -114,14 +114,21 @@ class OnboardingPathsScreen extends StatefulWidget {
 
 class _OnboardingPathsScreenState extends State<OnboardingPathsScreen> {
   OnboardingPath? _selected;
+  bool _navigating = false;
 
   void _choose(OnboardingPath path) {
     setState(() => _selected = path);
     context.appRead.setPath(path);
+    // One push per screen, no matter how fast the taps: a second choice
+    // within the beat updates the selection but must not stack ONB-03 twice.
+    if (_navigating) return;
+    _navigating = true;
     // A short beat so the selection is visible before the screen changes.
     Future<void>.delayed(const Duration(milliseconds: 180), () {
       if (!mounted) return;
-      Navigator.of(context).pushNamed(Routes.onboardingPermissions);
+      Navigator.of(context).pushNamed(Routes.onboardingPermissions).then((_) {
+        _navigating = false;
+      });
     });
   }
 
@@ -179,17 +186,10 @@ class OnboardingPermissionsScreen extends StatefulWidget {
 
 class _OnboardingPermissionsScreenState
     extends State<OnboardingPermissionsScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Ask for notifications as the screen settles rather than making someone
-    // find the switch first. `setReminders` records whatever the answer was,
-    // so the switch ends up showing the real permission state either way.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      context.appRead.setReminders(true);
-    });
-  }
+  // Deliberately no automatic permission prompt here. The reminders toggle
+  // below is the trigger: the OS dialog appears when — and only when — a
+  // person flips it, which is both what the copy promises ("Off unless you
+  // want it") and what App Review expects of a permission request.
 
   /// The Vibration switch is the one setting nobody can evaluate by reading
   /// about it, so turning it on plays the pacing haptic once.

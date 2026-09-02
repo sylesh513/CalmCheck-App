@@ -131,7 +131,8 @@ class _CardViewScreenState extends State<CardViewScreen> {
                                   name: c.name,
                                   relationship: c.relationship,
                                   number: c.number,
-                                  onCall: () => dial(c.number!),
+                                  onCall: () =>
+                                      dialOrExplain(context, c.number!),
                                   onAddNumber: card.readOnly
                                       ? null
                                       : () => Navigator.of(context).pushNamed(

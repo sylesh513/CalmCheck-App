@@ -91,6 +91,9 @@ class _CardShareScreenState extends State<CardShareScreen> {
     final card = context.appRead.cardById(widget.cardId);
     if (card == null) return;
     final cardFile = await writeCardFile(card);
+    // Popped while the file was being written: a defunct State has no
+    // MediaQuery to anchor the share sheet to.
+    if (!mounted) return;
     final files = <XFile>[XFile(cardFile.path)];
     if (_pdfPath != null) files.add(XFile(_pdfPath!));
     await SharePlus.instance.share(

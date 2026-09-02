@@ -8,6 +8,8 @@ import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.os.CancellationSignal
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.telephony.TelephonyManager
 import androidx.core.app.ActivityCompat
@@ -26,8 +28,10 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private val channelName = "app.calmcheck/device_settings"
     private val locationRequestCode = 8801
+    private val locationTimeoutMs = 7000L
 
     private var pendingLocation: MethodChannel.Result? = null
+    private val mainLooperHandler by lazy { Handler(Looper.getMainLooper()) }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -67,6 +71,12 @@ class MainActivity : FlutterActivity() {
                     }
 
                     "currentLocation" -> requestLocation(result)
+
+                    // Whether asking for a fix would first show the runtime
+                    // permission dialog. The Dart side extends its wait when a
+                    // prompt is coming — reading the dialog takes longer than
+                    // any sensible fix budget.
+                    "locationPromptNeeded" -> result.success(!hasLocationPermission())
 
                     else -> result.notImplemented()
                 }
@@ -112,14 +122,26 @@ class MainActivity : FlutterActivity() {
         }
 
         var answered = false
+        val signals = mutableListOf<CancellationSignal>()
         fun answer(location: Location?) {
             if (answered) return
             answered = true
-            result.success(
-                location?.let {
-                    mapOf("latitude" to it.latitude, "longitude" to it.longitude)
+            for (signal in signals) {
+                try {
+                    signal.cancel()
+                } catch (_: Exception) {
                 }
-            )
+            }
+            // The engine may already be gone if the Activity is being torn
+            // down; a reply into a dead channel must not crash the app.
+            try {
+                result.success(
+                    location?.let {
+                        mapOf("latitude" to it.latitude, "longitude" to it.longitude)
+                    }
+                )
+            } catch (_: Exception) {
+            }
         }
 
         // A fix that is a few minutes old is still the right street, and it is
@@ -142,14 +164,21 @@ class MainActivity : FlutterActivity() {
             return
         }
 
+        // The native side keeps its own clock so a hung provider cannot leave
+        // the Dart side waiting for its full budget: past the deadline the
+        // cached fix is the answer.
+        mainLooperHandler.postDelayed({ answer(cached) }, locationTimeoutMs)
+
         val pending = providers.size
         var settled = 0
         try {
             for (provider in providers) {
+                val signal = CancellationSignal()
+                signals.add(signal)
                 LocationManagerCompat.getCurrentLocation(
                     manager,
                     provider,
-                    CancellationSignal(),
+                    signal,
                     mainExecutor,
                 ) { location ->
                     settled++
@@ -195,5 +224,19 @@ class MainActivity : FlutterActivity() {
         } else {
             pending.success(null)
         }
+    }
+
+    override fun onDestroy() {
+        // A permission dialog can outlive the Activity (process death, being
+        // torn down behind it). Answer the parked request instead of leaking
+        // it — the Dart side treats null as the ordinary "no fix" outcome.
+        pendingLocation?.let {
+            pendingLocation = null
+            try {
+                it.success(null)
+            } catch (_: Exception) {
+            }
+        }
+        super.onDestroy()
     }
 }

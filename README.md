@@ -17,7 +17,7 @@ now — tell me exactly what to do in the next 60 seconds.**
 ```bash
 flutter pub get
 flutter run                                # Android or iOS device / simulator
-flutter test                               # 225 tests
+flutter test                               # 226 tests
 flutter build appbundle --release          # the Play upload
 flutter build apk --release --split-per-abi
 flutter build ipa --release                # needs full Xcode, not just the CLTs
@@ -59,14 +59,15 @@ only asserting on it.
 
 ## What is on the device, and what isn't
 
-There is no account, no server, and no analytics SDK. Care cards and settings
-live in `SharedPreferences` on the phone; card photos are copied into the app's
-own documents directory. `android.permission.INTERNET` is deliberately **not**
-in the manifest.
+There is no account, no server of ours, and no analytics SDK. Care cards and
+settings live in `SharedPreferences` on the phone; card photos are copied into
+the app's own documents directory. The single network dependency is RevenueCat,
+used for exactly one job: validating a Pro purchase with the store. It sees an
+anonymous install id and a receipt — never a name, an email, or card content.
 
-Because of that there is no offline state anywhere in the app — offline is its
-normal operating condition, not a failure to report. If any screen ever implies
-a network dependency, that's a bug.
+Everything a person actually does in the app works with no connection at all —
+offline is the normal operating condition, not a failure to report. If any
+screen other than the paywall ever implies a network dependency, that's a bug.
 
 ---
 
@@ -134,9 +135,10 @@ the palette, contrast audit, type scale and spacing scale.
    measured ratios are printed on the specimen screen.
 4. **Minimum target 48dp; crisis rows 88dp.** `CcStructure.targetMin` and
    `CcStructure.targetCrisis`, applied at every call site.
-5. **Nothing leaves the device.** No `INTERNET` permission, no analytics, and
-   the QR payload deliberately drops the card's photo path — that path means
-   nothing on another phone.
+5. **Your data never leaves the device.** No analytics, no uploads — the one
+   network call is anonymous purchase validation — and the QR payload
+   deliberately drops the card's photo path, because that path means nothing
+   on another phone.
 6. **Nothing medical.** No crosses, ECG lines, pill icons or hospital blue, and
    `test/copy_test.dart` fails the build if `diagnose`, `treat`, `therapy`,
    `cure`, `prescribe`, `medical grade` or `clinically proven` appears in any
@@ -200,23 +202,24 @@ integration_test/platform_channels_test.dart
 
 ## Pro
 
-Billing goes straight to the App Store and Play Billing — `in_app_purchase`,
-with no subscription service in between, because the promise on the privacy
-screen is that nothing about a person leaves the device. The cost of that is
-stated plainly: entitlement is whatever the store the phone is signed into
-reports, and there is no receipt server behind it.
+Billing goes through the App Store and Play Billing, validated by RevenueCat
+(`purchases_flutter`). RevenueCat sees an anonymous install id and the store
+receipt — never a name, an email, or anything a person put in the app — and it
+is the app's only network dependency. Entitlement lives in RevenueCat's `pro`
+entitlement, cached on the device.
 
 Two rules `lib/services/purchases.dart` exists to keep:
 
 1. **Pro never evaporates offline.** The entitlement is cached and is withdrawn
-   only when the store explicitly answers "nothing active" — never because a
-   query failed.
+   only when RevenueCat definitively answers "nothing active" — never because
+   a query failed.
 2. **If the store has no products, Pro is not offered at all.** Every Pro
    feature stays open and no paywall appears, so a build published before the
    products are configured is a complete app rather than one with a paywall
    that cannot charge.
 
-Product identifiers, the store-side setup and the review notes are in
+Product identifiers, the RevenueCat dashboard setup, the SDK keys
+(`lib/services/revenuecat_keys.dart`) and the review notes are in
 [docs/store-submission.md](docs/store-submission.md).
 
 ---

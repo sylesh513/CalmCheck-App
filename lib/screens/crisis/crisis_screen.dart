@@ -119,9 +119,9 @@ class _CallRow extends StatelessWidget {
               onTap: () {
                 CcHaptics.instance.fire(CcHaptic.emergency);
                 if (isDialable(number)) {
-                  dial(number);
+                  dialOrExplain(context, number);
                 } else if (number.contains('.')) {
-                  openWeb(number);
+                  openWebOrExplain(context, number);
                 }
               },
               borderRadius: t.cardBorderRadius,
@@ -203,7 +203,7 @@ class _DirectoryButton extends StatelessWidget {
       size: CcButtonSize.lg,
       fullWidth: true,
       haptic: CcHaptic.emergency,
-      onPressed: () => openWeb('findahelpline.com'),
+      onPressed: () => openWebOrExplain(context, 'findahelpline.com'),
     );
   }
 }

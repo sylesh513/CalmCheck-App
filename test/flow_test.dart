@@ -308,8 +308,25 @@ void main() {
       // A store with something to sell, and nothing bought.
       final state = await _boot(tester, store: StoreAvailability.available);
       expect(state.isPro, isFalse);
-      expect(state.canCreateCard, isFalse, reason: 'seeded with sample cards');
+      expect(
+        state.canCreateCard,
+        isTrue,
+        reason:
+            'the seeded samples are not cards the person created; a fresh '
+            'install must not route "create your first card" to the paywall',
+      );
 
+      // Their own first card uses the free slot…
+      state.upsertCard(
+        CareCardData(id: 'card-own', name: 'Nan', preparedAt: DateTime.now()),
+      );
+      expect(
+        state.canCreateCard,
+        isFalse,
+        reason: 'the second card is what meets the paywall',
+      );
+
+      // …and deleting everything frees it again.
       for (final card in state.cards.toList()) {
         state.deleteCard(card.id);
       }

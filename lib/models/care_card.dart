@@ -82,6 +82,10 @@ class CareCardData {
   final bool readOnly;
   final String? sharedBy;
 
+  /// The bundled example cards that seed a first-run library. They never
+  /// count against the free tier's "first card" allowance.
+  bool get isSample => id.startsWith('sample-');
+
   String get initial =>
       name.trim().isEmpty ? '?' : name.trim().characters.first.toUpperCase();
 
@@ -166,8 +170,8 @@ class CareCardData {
     name: json['name'] as String? ?? '',
     relation: json['relation'] as String? ?? '',
     livesWith: json['livesWith'] as String? ?? '',
-    doThis: (json['doThis'] as List?)?.cast<String>() ?? const [],
-    dontDo: (json['dontDo'] as List?)?.cast<String>() ?? const [],
+    doThis: _stringList(json['doThis']),
+    dontDo: _stringList(json['dontDo']),
     call:
         (json['call'] as List?)
             ?.map(
@@ -229,8 +233,8 @@ class CareCardData {
         name: m['n'] as String? ?? '',
         relation: m['r'] as String? ?? '',
         livesWith: m['w'] as String? ?? '',
-        doThis: (m['d'] as List?)?.cast<String>() ?? const [],
-        dontDo: (m['x'] as List?)?.cast<String>() ?? const [],
+        doThis: _stringList(m['d']),
+        dontDo: _stringList(m['x']),
         call: [
           for (final c in (m['c'] as List? ?? const []))
             CareContact(
@@ -255,6 +259,13 @@ class CareCardData {
 
 /// Bumped whenever the payload shape changes.
 const String _sharePrefix = 'CC1:';
+
+/// Eagerly typed copy of a decoded JSON list. `.cast<String>()` is lazy — a
+/// non-string element would sail through the parse guards and only throw
+/// later, at render time. `List<String>.from` throws here, inside the
+/// try/catch that quarantines bad data.
+List<String> _stringList(Object? value) =>
+    value is List ? List<String>.from(value) : const [];
 
 const List<String> _months = [
   'January',

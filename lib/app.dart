@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'design/motion.dart';
 import 'design/theme.dart';
+import 'data/exercises.dart';
 import 'routes.dart';
 import 'screens/cards/card_edit_screen.dart';
 import 'screens/cards/card_empty_screen.dart';
@@ -96,6 +97,15 @@ class _CalmCheckAppState extends State<CalmCheckApp>
             initialRoute: state.onboarded
                 ? Routes.home
                 : Routes.onboardingPromise,
+            // Exactly one route on launch. The default initial-route handling
+            // splits a multi-segment name ('/onboarding/promise') and pushes a
+            // route for every prefix — and because _onGenerateRoute has a
+            // catch-all, each prefix became a fully functional HomeScreen
+            // underneath: one Android back press from the first onboarding
+            // screen skipped the safety disclaimer and landed on Home.
+            onGenerateInitialRoutes: (initialRoute) => [
+              _onGenerateRoute(RouteSettings(name: initialRoute))!,
+            ],
             onGenerateRoute: _onGenerateRoute,
             builder: (context, child) {
               final media = MediaQuery.of(context);
@@ -156,23 +166,36 @@ Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
       settings: settings,
     ),
 
-    Routes.cardView => calm(CardViewScreen(cardId: args as String)),
-    Routes.cardEdit => calm(CardEditScreen(cardId: args as String?)),
-    Routes.cardShare => calm(CardShareScreen(cardId: args as String)),
+    // Card and exercise routes carry an id argument. A missing or mistyped
+    // argument (a stale deep link, a bad notification payload) falls back to
+    // a sensible screen instead of throwing inside route generation.
+    Routes.cardView => args is String
+        ? calm(CardViewScreen(cardId: args))
+        : calm(const HomeScreen()),
+    Routes.cardEdit => calm(
+      CardEditScreen(cardId: args is String ? args : null),
+    ),
+    Routes.cardShare => args is String
+        ? calm(CardShareScreen(cardId: args))
+        : calm(const HomeScreen()),
     Routes.cardScan => calm(const CardScanScreen()),
     Routes.cardEmpty => calm(const CardEmptyScreen()),
 
     Routes.exercises => calm(const ExerciseLibraryScreen()),
-    Routes.exerciseDetail => calm(
-      ExerciseDetailScreen(exerciseId: args as String),
-    ),
+    Routes.exerciseDetail => args is String && exerciseById(args) != null
+        ? calm(ExerciseDetailScreen(exerciseId: args))
+        : calm(const ExerciseLibraryScreen()),
 
     Routes.crisis => calm(const CrisisScreen()),
 
     Routes.paywall => calm(PaywallScreen(entry: args is String ? args : null)),
     Routes.sponsored => calm(const SponsoredScreen()),
     Routes.manageSubscription => calm(const ManageSubscriptionScreen()),
-    Routes.lifecycle => calm(LifecycleScreen(moment: args as LifecycleMoment)),
+    Routes.lifecycle => calm(
+      LifecycleScreen(
+        moment: args is LifecycleMoment ? args : LifecycleMoment.started,
+      ),
+    ),
 
     Routes.settings => calm(const SettingsScreen()),
     Routes.privacy => calm(const PrivacyScreen()),

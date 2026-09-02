@@ -32,6 +32,11 @@ public class CalmCheckLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
     switch call.method {
     case "currentLocation":
       requestLocation(result)
+    case "locationPromptNeeded":
+      // Whether asking for a fix would first show the permission dialog. The
+      // Dart side extends its wait when a prompt is coming — reading the
+      // dialog takes longer than any sensible fix budget.
+      result(CLLocationManager().authorizationStatus == .notDetermined)
     default:
       // openAppSettings and countryCode are answered on the Dart side on iOS:
       // the first through the app-settings: URL, the second from the locale,
@@ -47,10 +52,9 @@ public class CalmCheckLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
       result(nil)
       return
     }
-    guard CLLocationManager.locationServicesEnabled() else {
-      result(nil)
-      return
-    }
+    // Deliberately no locationServicesEnabled() check here: Apple warns that
+    // calling it on the main thread can block for seconds. With services off,
+    // requestLocation fails fast and didFailWithError answers nil instead.
 
     pending = result
 
@@ -59,18 +63,24 @@ public class CalmCheckLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
     manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
     self.manager = manager
 
-    timeoutTimer = Timer.scheduledTimer(withTimeInterval: Self.timeout, repeats: false) {
-      [weak self] _ in
-      self?.finish(nil)
-    }
-
     switch manager.authorizationStatus {
     case .notDetermined:
+      // No timer while the permission dialog is up: the fix budget starts
+      // when the fix request starts, not while somebody reads the prompt.
       manager.requestWhenInUseAuthorization()
     case .authorizedWhenInUse, .authorizedAlways:
+      startFixTimer()
       manager.requestLocation()
     default:
       finish(nil)
+    }
+  }
+
+  private func startFixTimer() {
+    timeoutTimer?.invalidate()
+    timeoutTimer = Timer.scheduledTimer(withTimeInterval: Self.timeout, repeats: false) {
+      [weak self] _ in
+      self?.finish(nil)
     }
   }
 
@@ -99,6 +109,8 @@ public class CalmCheckLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
     guard pending != nil else { return }
     switch manager.authorizationStatus {
     case .authorizedWhenInUse, .authorizedAlways:
+      // The prompt has been answered; the fix budget starts now.
+      startFixTimer()
       manager.requestLocation()
     case .notDetermined:
       break  // Still waiting on the person to answer the prompt.

@@ -22,8 +22,10 @@ import '../models/personal_contact.dart';
 import '../services/card_repository.dart';
 import '../services/device_settings.dart';
 import '../services/haptics.dart';
+import '../services/photos.dart';
 import '../services/purchases.dart';
 import '../services/reminders.dart';
+import '../services/voice.dart';
 
 /// Only `free`, `subscribed` and `expired` are ever derived from real state.
 /// `trial` exists because the design specifies the screen; the store owns
@@ -70,11 +72,17 @@ class AppState extends ChangeNotifier {
 
     // The store connection is opened alongside the first frame. Nothing about
     // reaching the panic action depends on it.
-    unawaited(purchases.init(prefs).then((_) => state.notifyListeners()));
+    unawaited(
+      purchases.init(prefs).then((_) {
+        if (!state._disposed) state.notifyListeners();
+      }),
+    );
     purchases.addListener(state.notifyListeners);
 
     return state;
   }
+
+  bool _disposed = false;
 
   // ---- Onboarding -------------------------------------------------------
   bool _onboarded = false;
@@ -140,7 +148,12 @@ class AppState extends ChangeNotifier {
 
   String? get regionCode => _regionOverride ?? _detectedRegion;
 
-  set guideVoice(bool v) => _setBool('guideVoice', v, (x) => _guideVoice = x);
+  set guideVoice(bool v) {
+    _setBool('guideVoice', v, (x) => _guideVoice = x);
+    // Mirrors the vibration setter: the live service follows the stored
+    // setting, so no call site can leave the two out of sync.
+    CcVoice.instance.enabled = v;
+  }
 
   set vibration(bool v) {
     _setBool('vibration', v, (x) => _vibration = x);
@@ -280,12 +293,13 @@ class AppState extends ChangeNotifier {
   /// Pro features are open only when the store positively reported that there
   /// is nothing to sell, so a build published before the products exist is a
   /// complete app rather than a crippled one. A store we could not reach, or
-  /// one we have not asked yet, grants nothing — otherwise an offline first
-  /// launch silently unlocked every paid feature.
+  /// one we have not asked yet, grants nothing — otherwise every cold start
+  /// (and any offline first launch) silently unlocked every paid feature for
+  /// as long as the query took. A paying subscriber is unaffected: their
+  /// entitlement is read from the on-device cache before the first frame.
   bool get isPro =>
       purchases.isPro ||
-      purchases.availability == StoreAvailability.unavailable ||
-      purchases.availability == StoreAvailability.unknown;
+      purchases.availability == StoreAvailability.unavailable;
 
   ProStatus get proStatus {
     if (purchases.entitlement.active) return ProStatus.subscribed;
@@ -326,8 +340,12 @@ class AppState extends ChangeNotifier {
   String? get quarantinedCardFile => _cardRepository.quarantinedPath;
 
   /// The first card is free forever. Pro is what unlocks the rest — and an
-  /// expired subscription never takes an existing card away.
-  bool get canCreateCard => isPro || _cards.where((c) => !c.readOnly).isEmpty;
+  /// expired subscription never takes an existing card away. Only cards the
+  /// person created themselves occupy the free slot: the bundled samples and
+  /// cards shared by someone else never do, or a brand-new install would
+  /// route "create your first card" straight to the paywall.
+  bool get canCreateCard =>
+      isPro || _cards.where((c) => !c.readOnly && !c.isSample).isEmpty;
 
   /// PDF export is Pro. Reading, calling and sharing a card are not.
   bool get canExportPdf => isPro;
@@ -351,6 +369,13 @@ class AppState extends ChangeNotifier {
   }
 
   void deleteCard(String id) {
+    // The card's photo is a copy this app made; it must not outlive the card.
+    for (final c in _cards) {
+      if (c.id == id) {
+        unawaited(deleteCardPhoto(c.photoPath));
+        break;
+      }
+    }
     _cards.removeWhere((c) => c.id == id);
     _persistCards();
     notifyListeners();
@@ -430,12 +455,19 @@ class AppState extends ChangeNotifier {
     if (rawCadence != null) {
       try {
         final m = jsonDecode(rawCadence) as Map<String, dynamic>;
-        _cadence = BreathCadence(
-          inhale: (m['i'] as num).toDouble(),
-          hold: (m['h'] as num).toDouble(),
-          exhale: (m['e'] as num).toDouble(),
-          rest: (m['r'] as num).toDouble(),
+        // Clamped on read: corrupt preferences must never produce a
+        // zero-length (or negative) breathing cycle — an
+        // AnimationController with Duration.zero degenerates, and this file
+        // has already learned once what corrupt prefs do to the boot path.
+        final cadence = BreathCadence(
+          inhale: ((m['i'] as num).toDouble()).clamp(1.0, 20.0),
+          hold: ((m['h'] as num).toDouble()).clamp(0.0, 20.0),
+          exhale: ((m['e'] as num).toDouble()).clamp(1.0, 30.0),
+          rest: ((m['r'] as num).toDouble()).clamp(0.0, 20.0),
         );
+        _cadence = cadence.exhale >= cadence.inhale
+            ? cadence
+            : cadence.copyWith(exhale: cadence.inhale);
       } catch (_) {
         _cadence = BreathCadence.standard;
       }
@@ -486,6 +518,7 @@ class AppState extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     purchases.removeListener(notifyListeners);
     super.dispose();
   }

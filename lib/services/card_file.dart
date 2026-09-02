@@ -31,6 +31,13 @@ Future<CareCardData?> openCardFile() async {
   );
   final file = await openFile(acceptedTypeGroups: const [group]);
   if (file == null) return null;
-  final raw = (await file.readAsString()).trim();
-  return CareCardData.tryParseShareString(raw);
+  try {
+    final raw = (await file.readAsString()).trim();
+    return CareCardData.tryParseShareString(raw);
+  } catch (_) {
+    // A binary or non-UTF-8 file: not a CalmCheck card. The extension filter
+    // is advisory only, so this is an ordinary outcome — the caller shows the
+    // invalid state, never a silent nothing.
+    return null;
+  }
 }

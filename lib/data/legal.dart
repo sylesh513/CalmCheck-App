@@ -99,33 +99,40 @@ class LegalCopy {
     (
       heading: 'The short version',
       body:
-          'CalmCheck has no accounts and no servers. Your care cards, your '
-          'settings and everything you do in the app are stored on this device '
-          'only. Nothing is uploaded, nothing is tracked, and nobody — '
-          'including us — can see any of it.',
+          'CalmCheck has no accounts and no servers of ours. Your care cards, '
+          'your settings and everything you do in the app are stored on this '
+          'device only. Nothing about you is uploaded and nothing is tracked. '
+          'The one thing that ever uses the network is checking a Pro '
+          'purchase with the store — and that carries no personal '
+          'information.',
     ),
     (
       heading: 'What is stored, and where',
       body:
           'Care cards, any photo you attach to one, your settings and whether '
           'you have Pro are written to this app\'s own storage on this device. '
-          'The app does not request internet access on Android at all.',
+          'The app makes no network requests of its own except purchase '
+          'validation, described under Payments below.',
     ),
     (
       heading: 'What we collect',
       body:
-          'Nothing. There is no analytics SDK, no advertising identifier, no '
-          'crash reporter and no telemetry of any kind. We do not know how many '
-          'times you opened the app, which exercises you used, or whether you '
-          'ever opened the helplines screen.',
+          'Nothing about you. There is no analytics SDK, no advertising '
+          'identifier, no crash reporter and no telemetry of ours. We do not '
+          'know how many times you opened the app, which exercises you used, '
+          'or whether you ever opened the helplines screen. Two system-level '
+          'exceptions are described under Payments and The camera.',
     ),
     (
       heading: 'The camera',
       body:
           'The camera is used only to read a care card\'s QR code, and only '
           'while the scanning screen is open. No image is saved and no image '
-          'leaves the device. If you would rather not grant the camera, you can '
-          'open a card file instead.',
+          'leaves the device. The code reader is Google\'s ML Kit barcode '
+          'library, which runs entirely on the device but may report '
+          'anonymous diagnostic counters to Google; it never sees card '
+          'content as text or anything about you. If you would rather not '
+          'grant the camera, you can open a card file instead.',
     ),
     (
       heading: 'Photos',
@@ -159,10 +166,12 @@ class LegalCopy {
     (
       heading: 'Payments',
       body:
-          'If you buy Pro, the App Store or Google Play handles the payment and '
-          'tells this app one thing: whether a purchase is active. We never see '
-          'your name, your email or your payment details, and there is no '
-          'subscription service between you and the store.',
+          'If you buy Pro, the App Store or Google Play handles the payment. '
+          'The purchase is validated by RevenueCat, a service that checks '
+          'store receipts; it sees a random identifier for this install and '
+          'the purchase itself — never your name, your email, your payment '
+          'details, or anything you put in the app. This is the only network '
+          'connection the app makes.',
     ),
     (
       heading: 'Reminders',

@@ -47,13 +47,23 @@ class _CardEditScreenState extends State<CardEditScreen> {
   bool _showValidation = false;
   bool _disclosureOpen = false;
 
+  /// The printed "version N" should tick once per editing session, not once
+  /// per 450ms autosave. Bumped on the first write, then held.
+  bool _versionBumped = false;
+
+  int get _nextVersion {
+    if (_isNew) return 1;
+    if (_versionBumped) return _card.version;
+    return _card.version + 1;
+  }
+
   @override
   void initState() {
     super.initState();
-    final app = context.appRead;
+    _app = context.appRead;
     final existing = widget.cardId == null
         ? null
-        : app.cardById(widget.cardId!);
+        : _app.cardById(widget.cardId!);
     _isNew = existing == null;
     _card =
         existing ??
@@ -129,12 +139,14 @@ class _CardEditScreenState extends State<CardEditScreen> {
         notes: _notes.text.trim(),
         // Every printed card and PDF carries "version N". Without this bump
         // it stayed at 1 for the life of the card, so a helper holding an old
-        // printout had no way to tell it was out of date.
-        version: _isNew ? 1 : _card.version + 1,
+        // printout had no way to tell it was out of date. Bumps once per
+        // editing session (see _nextVersion), not once per autosave.
+        version: _nextVersion,
         preparedAt: _card.preparedAt,
       );
+      _versionBumped = true;
       _card = updated;
-      context.appRead.upsertCard(updated);
+      _app.upsertCard(updated);
       if (mounted) setState(() {});
     }
 
@@ -175,8 +187,13 @@ class _CardEditScreenState extends State<CardEditScreen> {
   Future<void> _pickPhoto() async {
     final path = await pickCardPhoto();
     if (path == null || !mounted) return;
+    final previous = _card.photoPath;
     _card = _card.copyWith(photoPath: path);
     _app.upsertCard(_card);
+    // The replaced copy would otherwise sit in storage forever.
+    if (previous != null && previous != path) {
+      unawaited(deleteCardPhoto(previous));
+    }
     setState(() {});
   }
 
@@ -252,8 +269,10 @@ class _CardEditScreenState extends State<CardEditScreen> {
               onRemove: _card.photoPath == null
                   ? null
                   : () {
+                      final removed = _card.photoPath;
                       _card = _card.copyWith(clearPhoto: true);
                       _app.upsertCard(_card);
+                      unawaited(deleteCardPhoto(removed));
                       setState(() {});
                     },
             ),
@@ -315,8 +334,15 @@ class _CardEditScreenState extends State<CardEditScreen> {
                     // Removing is non-destructive: it lifts the row out, and
                     // nothing else on the card moves.
                     onRemove: () {
-                      setState(() => _contacts.removeAt(i).dispose());
+                      final removed = _contacts.removeAt(i);
+                      setState(() {});
                       _save(immediate: true);
+                      // Dispose after the frame that unmounts the TextFields;
+                      // disposing synchronously here trips "used after being
+                      // disposed" when the EditableTexts detach.
+                      WidgetsBinding.instance.addPostFrameCallback(
+                        (_) => removed.dispose(),
+                      );
                     },
                   ),
                 _AddRow(
