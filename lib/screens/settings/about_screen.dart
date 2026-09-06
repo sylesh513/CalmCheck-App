@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 
 import '../../data/copy.dart';
+import '../../data/legal.dart';
 import '../../services/dialer.dart';
 import '../../services/errors.dart';
 import '../../routes.dart';
@@ -75,7 +76,7 @@ class AboutScreen extends StatelessWidget {
                 gap: CcGap.sm,
                 children: [
                   FieldLabel('Contact'),
-                  const CcBody('hello@calmcheck.app'),
+                  const CcBody(LegalCopy.contact),
                   CcButton(
                     'Write to us',
                     variant: CcButtonVariant.quiet,

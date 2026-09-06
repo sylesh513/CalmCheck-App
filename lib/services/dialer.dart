@@ -11,6 +11,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../data/legal.dart';
+
 /// True when the hand-off to the dialler happened.
 Future<bool> dial(String number) async {
   final cleaned = number.replaceAll(RegExp(r'[^0-9+*#]'), '');
@@ -65,7 +67,7 @@ Future<void> openWebOrExplain(BuildContext context, String host) async {
 Future<bool> composeSponsorApplication() async {
   final uri = Uri(
     scheme: 'mailto',
-    path: 'hello@calmcheck.app',
+    path: LegalCopy.contact,
     queryParameters: {
       'subject': 'Sponsored access',
       'body':
@@ -86,7 +88,7 @@ Future<bool> composeSponsorApplication() async {
 Future<bool> composeSupportEmail({String? body}) async {
   final uri = Uri(
     scheme: 'mailto',
-    path: 'hello@calmcheck.app',
+    path: LegalCopy.contact,
     queryParameters: {
       'subject': 'CalmCheck',
       if (body != null)

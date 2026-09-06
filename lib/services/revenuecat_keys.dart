@@ -20,13 +20,17 @@ class RevenueCatKeys {
 
   static const String apple = String.fromEnvironment(
     'RC_APPLE_KEY',
-    // TODO(publisher): paste the appl_ key from the RevenueCat dashboard.
-    defaultValue: '',
+    // CalmCheck iOS (bundle app.calmcheck) in the CalmCheck RevenueCat
+    // project. Publishable: it unlocks nothing on its own, and baking it in
+    // means no build can ship keyless and give Pro away.
+    defaultValue: 'appl_AJqoiFxuRbllCOXZJazbiIAKasA',
   );
 
   static const String google = String.fromEnvironment(
     'RC_GOOGLE_KEY',
-    // TODO(publisher): paste the goog_ key from the RevenueCat dashboard.
+    // TODO(publisher): paste the goog_ key once the Play app exists. Empty
+    // means Android reports the store unavailable, which opens Pro up — see
+    // the warning in purchases.dart. Fill this in before any Play upload.
     defaultValue: '',
   );
 }

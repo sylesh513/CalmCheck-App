@@ -12,7 +12,15 @@ class LegalCopy {
   const LegalCopy._();
 
   static const String lastUpdated = 'Last updated 23 August 2026';
-  static const String contact = 'hello@calmcheck.app';
+  /// The one address the app publishes, and the same one the published
+  /// documents at betterintegrations.org/calmcheck carry.
+  ///
+  /// It is the company mailbox rather than a calmcheck.app address on purpose:
+  /// the published policy and this text have to be the same document — both
+  /// store consoles link to the published one, and a reviewer who finds them
+  /// saying different things has grounds to reject — so the address has to be
+  /// one that exists on both sides. calmcheck.app was never stood up.
+  static const String contact = 'hello@betterintegrations.org';
 
   // ---- Terms of use --------------------------------------------------------
 

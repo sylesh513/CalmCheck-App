@@ -57,7 +57,9 @@ the free trial the design describes, add a 7-day introductory offer to the
 annual plan — the app does not fabricate one.
 
 **RevenueCat.** Purchases are validated by RevenueCat (`purchases_flutter`).
-One-time setup in the [RevenueCat dashboard](https://app.revenuecat.com):
+The full click-by-click setup — App Store Connect products, the In-App Purchase
+key StoreKit 2 requires, the entitlement and offering, and sandbox testing — is
+in `docs/revenuecat-setup.md`. In summary:
 
 1. Create a project with an iOS app (bundle id `app.calmcheck`) and an Android
    app (package `app.calmcheck`), attaching the App Store Connect API key and
@@ -93,10 +95,17 @@ active" — never because a query failed.
 Both exist in the app: **Settings → Privacy policy** and **Settings → Terms of
 use**, and both are linked from the paywall because Apple requires it there.
 
-Both consoles also want a **URL**. Publish the text of
-`lib/data/legal.dart` at, for example, `https://calmcheck.app/privacy` and
-`https://calmcheck.app/terms`, and paste those URLs into the listings. Keep the
-two copies in step; the in-app version is the one people actually read.
+Both consoles also want a **URL**. Both are published on the parent company
+site and are the ones to paste into the listings:
+
+- `https://betterintegrations.org/calmcheck/privacy`
+- `https://betterintegrations.org/calmcheck/terms`
+
+The published pages carry the same wording as `lib/data/legal.dart`, plus the
+publisher's registered details and a governing-law clause the phone screen does
+not need. Keep the two copies in step — edit one and you edit the other in the
+same change; the in-app version is the one people actually read. Details in
+`docs/legal-for-publication.md`.
 
 ---
 
