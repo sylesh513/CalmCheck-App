@@ -1,6 +1,8 @@
-# CLLocationManager.authorizationStatus as an instance property is iOS 14+, and
-# every device that can run iOS 13 can run iOS 14, so the floor costs nobody.
-platform :ios, '14.0'
+# Xcode 27 refuses to build anything targeting below iOS 15, so 15.0 is the
+# floor whether we like it or not. It costs nothing we were relying on: the
+# reason the floor used to be 14.0 was CLLocationManager.authorizationStatus as
+# an instance property, which is iOS 14+, and 15 clears that too.
+platform :ios, '15.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -38,7 +40,24 @@ target 'Runner' do
 end
 
 post_install do |installer|
+  # Several plugins still ship a 13.0/14.0 deployment target of their own, which
+  # CocoaPods copies onto the generated Pods project verbatim. Xcode 27 rejects
+  # those outright, so raise anything below the floor. Only ever raise: a pod
+  # asking for more than 15.0 knows something we don't, and forcing it down
+  # would break it.
+  ios_floor = Gem::Version.new('15.0')
+
+  bump = lambda do |config|
+    current = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+    if current.nil? || Gem::Version.new(current.to_s) < ios_floor
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = ios_floor.to_s
+    end
+  end
+
+  installer.pods_project.build_configurations.each(&bump)
+
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    target.build_configurations.each(&bump)
   end
 end

@@ -238,8 +238,13 @@ the top changes with it.
 
 ## After publishing
 
-Both pages are live over HTTPS. The privacy URL —
-`https://betterintegrations.org/calmcheck/privacy` — still has to reach three
-places besides the listing: the `privacy_policy_url` field on each of the three
-in-app purchases, which is `null` on all of them. That is a RevenueCat change,
-not a code one, and it is the last outstanding item on this document.
+Both pages are live over HTTPS, and the privacy URL —
+`https://betterintegrations.org/calmcheck/privacy` — has now reached every place
+it had to go. It is set as `privacy_policy_url` on all three in-app purchases
+(annual, monthly, lifetime), applied 7 September 2026 and confirmed against live
+App Store Connect state. Nothing on this document is outstanding.
+
+The remaining coupling to watch is the one named at the top: the published pages
+and `lib/data/legal.dart` are the same document, and Apple now links to the
+published copy from three IAPs as well as the listing. Editing one side without
+the other breaks a claim the app makes about itself.

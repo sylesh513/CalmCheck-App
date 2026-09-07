@@ -84,9 +84,16 @@ class StateCopy {
 class ProCopy {
   const ProCopy._();
 
+  /// A policy, not a measurement: this is the commitment the give-back makes,
+  /// and it is true the day it ships.
+  ///
+  /// There is deliberately no `sponsoredSoFar` or `licencesAvailable` beside
+  /// it. Both used to exist as constants and both were shown as live figures —
+  /// a running total on the paywall, a remaining count on the sponsored
+  /// screen. The app has no server, so neither could ever change, and a
+  /// hardcoded total presented at the point of sale is a claim about the world
+  /// that the app cannot know and that is false on launch day.
   static const int sponsorEvery = 12;
-  static const int sponsoredSoFar = 37;
-  static const int licencesAvailable = 4;
 
   /// Shown only in the design reference, where there is no store to ask.
   /// Every price a person can actually be charged comes from the store, in
@@ -130,7 +137,7 @@ class ProCopy {
 
   static const giveBack =
       'Every $sponsorEvery subscriptions pays for a free year of Pro for '
-      "someone who can't afford it. $sponsoredSoFar sponsored so far.";
+      "someone who can't afford it.";
 
   static const purchaseError = StateCopy.purchaseDirection;
 
@@ -140,5 +147,6 @@ class ProCopy {
       'a free year for someone who asks.';
 
   static const sponsoredLimit =
-      'The pool is small and it runs out. When it does, this page says so.';
+      'The pool is small and it runs out. If it is empty when you write, we '
+      'will tell you, and tell you when it refills.';
 }

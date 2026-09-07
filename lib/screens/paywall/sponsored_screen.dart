@@ -24,13 +24,16 @@ class SponsoredScreen extends StatelessWidget {
     final app = context.app;
     // A granted licence is issued by a person, not by the app granting itself
     // Pro, so `granted` is only ever reached from the design reference.
+    // `empty` and `granted` are design-reference states only. The app has no
+    // server, so it cannot know how many licences are left any more than it can
+    // grant itself one — it used to read a constant, which meant the figure was
+    // never true. Whether the pool is empty is answered by the reply to the
+    // email, not by this screen.
     final state =
         forcedState ??
         (app.sponsorApplicationSent
             ? SponsoredState.submitted
-            : ProCopy.licencesAvailable > 0
-            ? SponsoredState.open
-            : SponsoredState.empty);
+            : SponsoredState.open);
 
     return CalmScaffold(
       child: CcScreen(
@@ -56,20 +59,13 @@ class SponsoredScreen extends StatelessWidget {
               ] else
                 const CcSub(ProCopy.sponsoredBody),
               const CcRule(),
-              if (state == SponsoredState.open)
-                const _Figure(
-                  label: 'Licences available now',
-                  value: '${ProCopy.licencesAvailable}',
-                  note: '${ProCopy.sponsoredSoFar} granted so far',
-                ),
               if (state == SponsoredState.empty)
                 const _Figure(
                   label: 'Licences available now',
                   value: '0',
                   note:
                       'The pool is empty. It refills when subscriptions do — '
-                      'usually within a few weeks. '
-                      '${ProCopy.sponsoredSoFar} granted so far.',
+                      'usually within a few weeks.',
                   empty: true,
                 ),
               if (state == SponsoredState.submitted)

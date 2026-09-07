@@ -434,19 +434,9 @@ class GiveBackBlock extends StatelessWidget {
       gap: CcGap.xs,
       children: [
         FieldLabel('Give-back'),
-        if (lead) ...[
-          Text(
-            '${ProCopy.sponsoredSoFar}',
-            style: TextStyle(
-              fontFamily: ccLabelFace,
-              fontSize: t.displaySize * 1.6,
-              height: 1,
-              fontWeight: FontWeight.w700,
-              color: t.ink,
-            ),
-          ),
-          FieldLabel('years of Pro sponsored so far'),
-        ],
+        // No running total here. The figure that used to lead this block was a
+        // constant, so it could never have been true; a number at the point of
+        // sale has to be one the app can actually know.
         CcBody(ProCopy.giveBack, muted: true),
       ],
     );

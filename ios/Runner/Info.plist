@@ -24,8 +24,24 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>app-settings</string>
+		<string>tel</string>
+		<string>sms</string>
+		<string>mailto</string>
+		<string>https</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>CalmCheck uses the camera only to scan a care card's QR code. Nothing is recorded and no image leaves this device.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>So CalmCheck can put a map link into a message you send to your own emergency contact. It asks only when you tap to text them, never in the background, and your location is not stored or sent anywhere else.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>CalmCheck can put a photo on a care card so a stranger recognises the person. The photo is copied into the app and stays on this device.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -53,8 +69,8 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
-	<!-- Portrait only. This app is held one-handed, in the dark, by someone
-	     who should not have to fight a rotation. -->
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -64,32 +80,7 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
-	<!-- Required with a portrait-only iPad orientation set: an iPad build
-	     that does not support all four orientations must opt out of
-	     multitasking, or App Store Connect rejects the binary at upload. -->
-	<key>UIRequiresFullScreen</key>
-	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>CalmCheck uses the camera only to scan a care card's QR code. Nothing is recorded and no image leaves this device.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>So CalmCheck can put a map link into a message you send to your own emergency contact. It asks only when you tap to text them, never in the background, and your location is not stored or sent anywhere else.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>CalmCheck can put a photo on a care card so a stranger recognises the person. The photo is copied into the app and stays on this device.</string>
-	<!-- Tap-to-call from a care card and from the crisis helplines screen. -->
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>app-settings</string>
-		<string>tel</string>
-		<string>sms</string>
-		<string>mailto</string>
-		<string>https</string>
-	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<!-- CalmCheck uses no encryption beyond what the OS provides for HTTPS in
-	     the store's own billing calls, so it is exempt. Declaring it here stops
-	     App Store Connect asking on every upload. -->
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 </dict>
 </plist>
