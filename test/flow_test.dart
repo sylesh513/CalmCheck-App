@@ -363,7 +363,8 @@ void main() {
       await _settle(tester);
       expect(find.text('Two quick settings.'), findsOneWidget);
 
-      // Reminders default off, and Allow is not the only styled path.
+      // Continue is the styled path, not Allow: the notification prompt has
+      // already been asked for and answered by the time anyone reads this.
       await tester.tap(find.text('Continue'));
       await _settle(tester);
       expect(find.text("What this app is, and what it isn't."), findsOneWidget);
@@ -384,11 +385,68 @@ void main() {
     },
   );
 
-  testWidgets('reminders are off by default and vibration is on', (
+  testWidgets('reminders stay off unless the phone actually grants them', (
     tester,
   ) async {
+    // ONB-03 asks for notifications on arrival, but `setReminders` only
+    // records true when permission comes back granted. There is no permission
+    // in a test environment, so the toggle must be off — the app never claims
+    // a reminder it cannot deliver.
     final state = await _boot(tester, onboarded: false);
     expect(state.reminders, isFalse);
     expect(state.vibration, isTrue);
+
+    await tester.tap(find.text('Get started'));
+    await _settle(tester);
+    await tester.tap(find.text('Myself'));
+    await _settle(tester);
+    expect(find.text('Two quick settings.'), findsOneWidget);
+    expect(
+      state.reminders,
+      isFalse,
+      reason: 'permission was never granted, so nothing may be switched on',
+    );
+  });
+
+  testWidgets('typing in the first card does not close the editor', (
+    tester,
+  ) async {
+    // The editor autosaves 450ms after a keystroke, which notifies AppState
+    // and rebuilds the onboarding screen sitting underneath it. That screen
+    // used to ask "has a card appeared?" during build and send everyone to
+    // HOME the moment a name was typed, throwing away the half-filled card.
+    await _boot(tester, onboarded: false);
+
+    await tester.tap(find.text('Get started'));
+    await _settle(tester);
+    await tester.tap(find.text('Myself'));
+    await _settle(tester);
+    await tester.tap(find.text('Continue'));
+    await _settle(tester);
+    await tester.tap(find.text('I understand'));
+    await _settle(tester);
+
+    expect(find.text('Create a care card'), findsOneWidget);
+    await tester.tap(find.text('Create a care card'));
+    await _settle(tester);
+
+    final name = find.widgetWithText(TextField, 'First name is enough');
+    expect(name, findsOneWidget, reason: 'the editor is open');
+
+    await tester.enterText(name, 'Ravi');
+    // Well past the 450ms autosave debounce that fires the write.
+    await tester.pump(const Duration(milliseconds: 600));
+    await _settle(tester);
+
+    expect(
+      find.widgetWithText(TextField, 'Ravi'),
+      findsOneWidget,
+      reason: 'the editor must survive its own autosave, with the name kept',
+    );
+    expect(
+      find.text('I need calm now'),
+      findsNothing,
+      reason: 'typing a name must not bounce anyone to HOME',
+    );
   });
 }

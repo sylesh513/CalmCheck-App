@@ -174,8 +174,11 @@ class _OnboardingPathsScreenState extends State<OnboardingPathsScreen> {
   }
 }
 
-/// ONB-03 — permissions. Reminders default off and are visibly optional; the
-/// styled path is Continue, not Allow.
+/// ONB-03 — permissions. Reminders are asked for on arrival and left on if
+/// granted: a nudge to practise while you're calm is the whole mechanism by
+/// which the app is any use before a bad moment, and almost nobody goes
+/// looking for a switch to enable it. The toggle stays, immediately above the
+/// button, so turning it back off is one tap and needs no menu.
 class OnboardingPermissionsScreen extends StatefulWidget {
   const OnboardingPermissionsScreen({super.key});
 
@@ -186,10 +189,21 @@ class OnboardingPermissionsScreen extends StatefulWidget {
 
 class _OnboardingPermissionsScreenState
     extends State<OnboardingPermissionsScreen> {
-  // Deliberately no automatic permission prompt here. The reminders toggle
-  // below is the trigger: the OS dialog appears when — and only when — a
-  // person flips it, which is both what the copy promises ("Off unless you
-  // want it") and what App Review expects of a permission request.
+  /// The notification prompt is fired once, on arrival, rather than waiting
+  /// for someone to find the toggle. `setReminders` is what owns the OS
+  /// dialog: it only records `true` if permission actually came back granted,
+  /// so a denial — or a second visit after a denial, where iOS never asks
+  /// again — leaves the toggle honestly off rather than showing a promise the
+  /// phone will not keep.
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final app = context.appRead;
+      if (!app.reminders) app.setReminders(true);
+    });
+  }
 
   /// The Vibration switch is the one setting nobody can evaluate by reading
   /// about it, so turning it on plays the pacing haptic once.
@@ -228,8 +242,9 @@ class _OnboardingPermissionsScreenState
               ToggleRow(
                 label: 'Reminders',
                 explanation:
-                    'An occasional nudge to practise while you\'re calm. Off '
-                    'unless you want it.',
+                    "An occasional nudge to practise while you're calm. On, "
+                    'because it is easy to forget — turn it off here or in '
+                    'Settings.',
                 value: app.reminders,
                 onChanged: (v) => app.setReminders(v),
               ),
@@ -312,41 +327,38 @@ class OnboardingFirstCardScreen extends StatefulWidget {
 }
 
 class _OnboardingFirstCardScreenState extends State<OnboardingFirstCardScreen> {
-  int? _cardsOnEntry;
-
-  @override
-  void initState() {
-    super.initState();
-    _cardsOnEntry = null;
-  }
-
   void _toHome() => Navigator.of(
     context,
   ).pushNamedAndRemoveUntil(Routes.home, (route) => false);
 
-  void _create() {
+  /// Push the editor and wait for it to come back before deciding anything.
+  ///
+  /// The count is deliberately compared here and not in `build`. The editor
+  /// autosaves while someone is still typing, which notifies AppState, which
+  /// rebuilds this screen underneath it — and a "did a card appear?" check in
+  /// `build` fired on the first keystroke of the name and threw the editor
+  /// away mid-sentence. Nothing about this screen may depend on card state
+  /// while the editor is on top of it.
+  Future<void> _create() async {
     final app = context.appRead;
-    _cardsOnEntry = app.cards.length;
+    final before = app.cards.length;
+
     // The same rule HOME uses, so onboarding is not a way around the paywall.
-    if (app.canCreateCard) {
-      Navigator.of(context).pushNamed(Routes.cardEdit);
-    } else {
-      Navigator.of(context).pushNamed(Routes.paywall, arguments: 'second-card');
-    }
+    final route = app.canCreateCard
+        ? Routes.cardEdit
+        : Routes.paywall;
+    await Navigator.of(
+      context,
+    ).pushNamed(route, arguments: route == Routes.paywall ? 'second-card' : null);
+
+    // They came back having actually made one. Say nothing more about it and
+    // get out of the way; otherwise leave them on this screen to choose again.
+    if (!mounted) return;
+    if (context.appRead.cards.length > before) _toHome();
   }
 
   @override
   Widget build(BuildContext context) {
-    final app = context.app;
-
-    // They came back from the editor having actually made one. Say nothing
-    // more about it and get out of the way.
-    if (_cardsOnEntry != null && app.cards.length > _cardsOnEntry!) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _toHome();
-      });
-    }
-
     return CalmScaffold(
       child: CcScreen(
         align: CcAlign.between,

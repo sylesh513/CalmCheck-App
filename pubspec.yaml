@@ -1,7 +1,7 @@
 name: calmcheck
 description: "Acute-moment readiness. Guided calm and care cards, fully offline."
 publish_to: 'none'
-version: 1.0.0+2
+version: 1.0.0+3
 
 environment:
   sdk: ^3.12.0
