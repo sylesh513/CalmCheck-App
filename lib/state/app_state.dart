@@ -15,7 +15,6 @@ import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/helplines.dart';
-import '../data/sample_cards.dart';
 import '../design/breath.dart';
 import '../models/care_card.dart';
 import '../models/personal_contact.dart';
@@ -341,11 +340,10 @@ class AppState extends ChangeNotifier {
 
   /// The first card is free forever. Pro is what unlocks the rest — and an
   /// expired subscription never takes an existing card away. Only cards the
-  /// person created themselves occupy the free slot: the bundled samples and
-  /// cards shared by someone else never do, or a brand-new install would
-  /// route "create your first card" straight to the paywall.
+  /// person created themselves occupy the free slot; a card someone else
+  /// shared with them never does.
   bool get canCreateCard =>
-      isPro || _cards.where((c) => !c.readOnly && !c.isSample).isEmpty;
+      isPro || _cards.where((c) => !c.readOnly).isEmpty;
 
   /// PDF export is Pro. Reading, calling and sharing a card are not.
   bool get canExportPdf => isPro;
@@ -493,17 +491,14 @@ class AppState extends ChangeNotifier {
   Future<void> _readCards() async {
     _cards = List<CareCardData>.from(await _cardRepository.load(_prefs));
 
-    // A brand-new install starts with the two example cards, so the second
-    // half of the app is legible before anyone has typed anything. A person
-    // who deletes them is not given them back.
-    final seeded = _prefs.getBool('seeded') ?? false;
-    if (_cards.isEmpty && !seeded) {
-      _cards = starterCards();
-      _prefs.setBool('seeded', true);
+    // The library only ever holds cards a person made or was sent. Earlier
+    // builds seeded two bundled examples; anyone carrying those forward has
+    // them cleared once, here, so nobody sees a stranger on their own shelf.
+    if (_cards.any((c) => c.isSample)) {
+      _cards.removeWhere((c) => c.isSample);
       _persistCards();
-    } else if (!seeded) {
-      _prefs.setBool('seeded', true);
     }
+    _prefs.remove('seeded');
   }
 
   /// The region the phone's own settings report, which on iOS is the closest

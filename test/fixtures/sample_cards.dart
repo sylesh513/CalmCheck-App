@@ -1,11 +1,11 @@
-/// Sample card content — the same two cards used in every mockup. Card 1 seeds
-/// a first-run library so the concept lands before anyone has typed anything.
+/// Card content for tests only. The app itself ships no cards: a new install
+/// starts empty and everything in the library is something a person typed.
 library;
 
-import '../models/care_card.dart';
+import 'package:calmcheck/models/care_card.dart';
 
 CareCardData get ravi => CareCardData(
-  id: 'sample-ravi',
+  id: 'card-ravi',
   name: 'Ravi',
   relation: 'grandfather',
   livesWith: 'Vascular dementia. Gets disoriented in the late afternoon.',
@@ -39,7 +39,7 @@ CareCardData get ravi => CareCardData(
 );
 
 CareCardData get aanya => CareCardData(
-  id: 'sample-aanya',
+  id: 'card-aanya',
   name: 'Aanya',
   relation: 'age 9',
   doThis: const [
@@ -66,6 +66,3 @@ CareCardData get aanya => CareCardData(
   preparedAt: DateTime(2026, 2, 19),
 );
 
-/// What a brand-new install starts with. Nothing is invented for the user —
-/// these are examples they can read, edit, or delete.
-List<CareCardData> starterCards() => [ravi, aanya];

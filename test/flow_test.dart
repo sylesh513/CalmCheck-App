@@ -11,7 +11,7 @@ import 'dart:io';
 import 'package:calmcheck/app.dart';
 import 'package:calmcheck/data/helplines.dart';
 import 'package:calmcheck/services/card_repository.dart';
-import 'package:calmcheck/data/sample_cards.dart';
+import 'fixtures/sample_cards.dart';
 import 'package:calmcheck/design/theme.dart';
 import 'package:calmcheck/models/care_card.dart';
 import 'package:calmcheck/models/personal_contact.dart';
@@ -247,10 +247,10 @@ void main() {
       await tester.tap(find.text('I need calm now'));
       await _settle(tester);
 
-      // No personal contact has been named, so the pacer falls back to a
-      // contact from a seeded care card rather than offering nobody at all.
-      // The personal-contact treatment stays reserved for a named person.
-      expect(find.textContaining('Call '), findsOneWidget);
+      // A fresh install holds no contact of any kind, so the pacer offers
+      // nobody. The personal-contact treatment stays reserved for a named
+      // person; the ways out below are unchanged either way.
+      expect(find.textContaining('Call '), findsNothing);
       expect(find.textContaining('Text '), findsNothing);
       expect(find.text("Breathing isn't helping"), findsOneWidget);
       expect(find.text("I'M DONE"), findsOneWidget);

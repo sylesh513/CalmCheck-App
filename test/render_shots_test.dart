@@ -5,7 +5,7 @@ library;
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:calmcheck/data/sample_cards.dart';
+import 'fixtures/sample_cards.dart';
 import 'package:calmcheck/design/theme.dart';
 import 'package:calmcheck/screens/cards/card_share_screen.dart';
 import 'package:calmcheck/data/helplines.dart';
@@ -66,6 +66,9 @@ void main() {
       cardRepository: CardRepository(directory: dir),
       purchaseService: PurchaseService.forTest(),
     );
+    // The app ships no cards, so the shots supply their own.
+    state.upsertCard(ravi);
+    state.upsertCard(aanya);
     // Let every queued write land before the directory goes away.
     addTearDown(() async {
       await _flushAndRemove(dir);

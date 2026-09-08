@@ -362,8 +362,8 @@ class _OnboardingFirstCardScreenState extends State<OnboardingFirstCardScreen> {
                 'two minutes, and it never leaves this phone.',
               ),
               const CcBody(
-                'The two example cards are there to show you the shape of one. '
-                'Yours is the one that matters.',
+                'You can do it now or later. The library starts empty — the '
+                'only cards in it are the ones you make.',
               ),
             ],
           ),

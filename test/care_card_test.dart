@@ -3,7 +3,7 @@
 /// file path off the device.
 library;
 
-import 'package:calmcheck/data/sample_cards.dart';
+import 'fixtures/sample_cards.dart';
 import 'package:calmcheck/models/care_card.dart';
 import 'package:flutter_test/flutter_test.dart';
 

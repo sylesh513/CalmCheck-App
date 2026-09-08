@@ -80,16 +80,33 @@ void main() {
       expect(app.canCreateCard, isTrue);
     });
 
-    test('the sample cards do not use up the free slot', () async {
+    test('a fresh install ships no cards of its own', () async {
       final app = await boot(store: StoreAvailability.available);
-      expect(app.cards, isNotEmpty, reason: 'a fresh install is seeded');
+      expect(
+        app.cards,
+        isEmpty,
+        reason: 'nothing is bundled — every card is one somebody made or was sent',
+      );
       expect(
         app.canCreateCard,
         isTrue,
-        reason:
-            'the seeded examples are not cards the person created — a new '
-            'install must not route "create your first card" to the paywall',
+        reason: 'a new install must not route "create your first card" to the '
+            'paywall',
       );
+    });
+
+    test('a card someone else shared does not use up the free slot', () async {
+      final app = await boot(store: StoreAvailability.available);
+      app.upsertCard(
+        CareCardData(
+          id: 'card-received',
+          name: 'Nan',
+          readOnly: true,
+          sharedBy: 'Sonia',
+          preparedAt: DateTime.now(),
+        ),
+      );
+      expect(app.canCreateCard, isTrue);
     });
 
     test('a lapsed subscription keeps every card readable', () async {

@@ -7,7 +7,6 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../data/sample_cards.dart';
 import '../../models/care_card.dart';
 import '../../state/app_state.dart';
 import '../../widgets/widgets.dart';
@@ -53,11 +52,52 @@ class _Group {
   final List<_Entry> entries;
 }
 
+/// Placeholder content for the card screens below. It exists only so this
+/// debug-only reference has something to render — the app ships no cards, and
+/// nothing here is ever written to a person's library.
+CareCardData get _fullCard => CareCardData(
+  id: 'preview-full',
+  name: 'Example',
+  relation: 'grandparent',
+  livesWith: 'Vascular dementia. Gets disoriented in the late afternoon.',
+  doThis: const [
+    'Keep your voice low and slow.',
+    "Sit down so you're at eye level.",
+    'Say your name and how you know them.',
+    'Put the radio on — it settles them.',
+    'Give it ten minutes before trying anything else.',
+  ],
+  dontDo: const [
+    "Don't correct them about the year or ask if they remember you.",
+    "Don't stand behind them.",
+    "Don't turn the overhead lights on after dark — use the lamp.",
+  ],
+  call: const [
+    CareContact(
+      name: 'First contact',
+      relationship: 'daughter',
+      number: '07700 900 118',
+    ),
+    CareContact(
+      name: 'Second contact',
+      relationship: 'GP',
+      number: '020 7946 0231',
+    ),
+  ],
+  medications: 'Two tablets, morning and night.',
+  triggers:
+      'Late afternoon light. Being rushed. More than one person talking at once.',
+  notes: 'Keys live in the bowl by the door. They will ask; they are not going out.',
+  version: 3,
+  preparedAt: DateTime(2026, 3, 4),
+);
+
 /// A minimal card: only the fields someone filled in on the first pass. It
 /// must not look broken.
-CareCardData get _aanyaMinimal {
-  final full = aanya;
+CareCardData get _minimalCard {
+  final full = _fullCard;
   return full.copyWith(
+    id: 'preview-minimal',
     doThis: full.doThis.take(2).toList(),
     dontDo: full.dontDo.take(1).toList(),
     call: full.call.take(1).toList(),
@@ -137,20 +177,23 @@ List<_Group> _groups() => [
   ]),
   _Group('Session 5 · Care cards', [
     _Entry(
-      'CARD-VIEW · Ravi',
+      'CARD-VIEW · Full',
       'Full card, owner view',
-      (_) => CardViewScreen(previewCard: ravi),
+      (_) => CardViewScreen(previewCard: _fullCard),
     ),
     _Entry(
-      'CARD-VIEW · Aanya',
+      'CARD-VIEW · Minimal',
       'Minimal card',
-      (_) => CardViewScreen(previewCard: _aanyaMinimal),
+      (_) => CardViewScreen(previewCard: _minimalCard),
     ),
     _Entry(
       'CARD-VIEW · Received',
       'Read-only, no edit affordance',
       (_) => CardViewScreen(
-        previewCard: aanya.copyWith(readOnly: true, sharedBy: 'Sonia'),
+        previewCard: _minimalCard.copyWith(
+          readOnly: true,
+          sharedBy: 'Someone else',
+        ),
       ),
     ),
     _Entry(

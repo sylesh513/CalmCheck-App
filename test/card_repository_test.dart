@@ -5,7 +5,7 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:calmcheck/data/sample_cards.dart';
+import 'fixtures/sample_cards.dart';
 import 'package:calmcheck/models/care_card.dart';
 import 'package:calmcheck/services/card_repository.dart';
 import 'package:flutter_test/flutter_test.dart';

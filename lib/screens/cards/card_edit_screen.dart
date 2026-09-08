@@ -498,7 +498,7 @@ class _ContactRowEditor extends StatelessWidget {
           TextFieldRow(
             label: 'Name',
             controller: fields.name,
-            hint: 'Priya',
+            hint: 'Their name',
             onChanged: (_) => onChanged(),
           ),
           TextFieldRow(

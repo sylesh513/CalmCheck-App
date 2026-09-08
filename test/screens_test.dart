@@ -13,7 +13,7 @@ import 'package:calmcheck/data/helplines.dart';
 import 'package:calmcheck/services/card_repository.dart';
 import 'package:calmcheck/services/purchases.dart';
 import 'package:calmcheck/models/care_card.dart';
-import 'package:calmcheck/data/sample_cards.dart';
+import 'fixtures/sample_cards.dart';
 import 'package:calmcheck/screens/cards/card_edit_screen.dart';
 import 'package:calmcheck/screens/cards/card_empty_screen.dart';
 import 'package:calmcheck/screens/cards/card_share_screen.dart';
@@ -88,6 +88,9 @@ void main() {
       cardRepository: CardRepository(directory: dir),
       purchaseService: PurchaseService.forTest(),
     );
+    // The app ships no cards, so a screen that needs one gets it here.
+    _state.upsertCard(ravi);
+    _state.upsertCard(aanya);
     // Let every queued write land before the directory goes away.
     addTearDown(() async {
       await _flushAndRemove(dir);

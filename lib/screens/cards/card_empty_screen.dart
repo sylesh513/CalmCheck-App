@@ -70,7 +70,7 @@ class GhostCard extends StatelessWidget {
             spacing: 6,
             children: [
               FieldLabel('Care card'),
-              Text('Aanya', style: context.ccText.titleLarge),
+              Text('Their name', style: context.ccText.titleLarge),
               FieldLabel('What to do'),
               _Bar(color: t.rule),
               _Bar(color: t.rule, fraction: 0.62),

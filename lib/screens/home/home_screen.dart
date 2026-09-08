@@ -12,7 +12,6 @@ import '../../models/care_card.dart';
 import '../../routes.dart';
 import '../../state/app_state.dart';
 import '../../widgets/widgets.dart';
-import '../cards/card_empty_screen.dart' show GhostCard;
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, this.forceEmpty = false});
@@ -167,10 +166,13 @@ class _EmptyShelf extends StatelessWidget {
       spacing: CcSpace.sm,
       children: [
         FieldLabel('Care cards'),
+        // No ghost card here. HOME's first job is the panic button and the
+        // quiet route to the helplines; a full-height empty state would push
+        // that route off the bottom of a phone screen. The ghosted card
+        // belongs to CARD-EMPTY, which has the room for it.
         EmptyState(
           headline: StateCopy.emptyCardsHeadline,
           body: StateCopy.emptyCardsDirection,
-          ghost: const GhostCard(),
           action: CcButton(
             StateCopy.emptyCardsPrimary,
             fullWidth: true,

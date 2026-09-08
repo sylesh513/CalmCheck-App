@@ -1,7 +1,7 @@
 /// Your person.
 ///
 /// Distinct from the contacts on a care card: those belong to whoever the card
-/// is about — Priya is Ravi's daughter, not yours. This is the one somebody
+/// is about — their daughter is not yours to call. This is the one somebody
 /// wants when *they* are the one who cannot breathe, and it is the only reason
 /// the panic flow ever shows a third control.
 library;

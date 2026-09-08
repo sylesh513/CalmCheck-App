@@ -82,8 +82,8 @@ class CareCardData {
   final bool readOnly;
   final String? sharedBy;
 
-  /// The bundled example cards that seed a first-run library. They never
-  /// count against the free tier's "first card" allowance.
+  /// A card left behind by an earlier build that shipped two bundled
+  /// examples. Nothing creates these any more; they are cleared on load.
   bool get isSample => id.startsWith('sample-');
 
   String get initial =>
