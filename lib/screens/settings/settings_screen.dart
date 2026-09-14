@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 import '../../routes.dart';
 import '../../services/card_repository.dart';
+import '../../services/purchases.dart';
 import '../../services/voice.dart';
 import '../../state/app_state.dart';
 import '../../widgets/widgets.dart';
@@ -138,9 +139,16 @@ class SettingsScreen extends StatelessWidget {
               const CcRule(),
               NavRow(
                 label: 'Manage subscription',
-                explanation: pro
-                    ? 'Renews yearly through the app store. Cancel any time.'
-                    : 'See what Pro includes and what it costs.',
+                explanation: switch (app.purchases.entitlement.productId) {
+                  _ when !pro => 'See what Pro includes and what it costs.',
+                  ProProductIds.lifetime =>
+                    'Lifetime. A single payment, nothing to renew.',
+                  ProProductIds.monthly =>
+                    'Renews monthly through the app store. Cancel any time.',
+                  ProProductIds.annual =>
+                    'Renews yearly through the app store. Cancel any time.',
+                  _ => 'Renewal and cancellation are handled by the app store.',
+                },
                 onTap: () => Navigator.of(
                   context,
                 ).pushNamed(pro ? Routes.manageSubscription : Routes.paywall),

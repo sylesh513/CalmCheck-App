@@ -53,6 +53,7 @@ final List<ProProduct> _storeProducts = [
     price: r'$19.99',
     rawPrice: 19.99,
     currencyCode: 'USD',
+    freeTrialDays: 7,
   ),
   const ProProduct(
     id: ProProductIds.monthly,

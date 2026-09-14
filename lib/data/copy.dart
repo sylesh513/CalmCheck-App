@@ -116,11 +116,17 @@ class ProCopy {
 
   /// The store owns the trial. This line is shown only for a product the store
   /// reports an introductory offer on.
-  static String trialLine(String price) =>
-      '7 days free, then $price a year. Cancel any time.';
+  static String trialLine(int days, String price) =>
+      '$days days free, then $price a year. Cancel any time.';
 
   static String plainPriceLine(String price) =>
       '$price a year. Cancel any time.';
+
+  static String monthlyPriceLine(String price) =>
+      '$price a month. Cancel any time.';
+
+  static String lifetimePriceLine(String price) =>
+      '$price once. No subscription, nothing to renew.';
 
   /// Required on any screen selling an auto-renewing subscription.
   static const autoRenewDisclosure =

@@ -74,6 +74,7 @@ class ProProduct {
     required this.price,
     required this.rawPrice,
     required this.currencyCode,
+    this.freeTrialDays,
     this.package,
   });
 
@@ -84,6 +85,10 @@ class ProProduct {
   final String price;
   final double rawPrice;
   final String currencyCode;
+
+  /// Length of the free introductory offer the store reports on this product,
+  /// or null when there is none. Read from the store, never assumed.
+  final int? freeTrialDays;
 
   /// The RevenueCat package behind this row. Null only in tests.
   final Package? package;
@@ -126,9 +131,7 @@ class Entitlement {
 }
 
 class PurchaseService extends ChangeNotifier {
-  PurchaseService()
-    : _forcedAvailability = null,
-      _forcedPro = false;
+  PurchaseService() : _forcedAvailability = null, _forcedPro = false;
 
   /// A service that never touches a store. Tests run on a host where the
   /// billing plugin registers but cannot connect, and where an unhandled
@@ -258,6 +261,7 @@ class PurchaseService extends ChangeNotifier {
             price: sp.priceString,
             rawPrice: sp.price,
             currencyCode: sp.currencyCode,
+            freeTrialDays: _freeTrialDays(sp.introductoryPrice),
             package: pkg,
           ),
         );
@@ -287,6 +291,20 @@ class PurchaseService extends ChangeNotifier {
   /// Play's product ids arrive as `productId:basePlanId` on Android. The app
   /// keys everything off the plain product id.
   static String _baseProductId(String id) => id.split(':').first;
+
+  /// Only a free introductory offer is a trial; a discounted one is not.
+  static int? _freeTrialDays(IntroductoryPrice? intro) {
+    if (intro == null || intro.price != 0) return null;
+    final perUnit = switch (intro.periodUnit) {
+      PeriodUnit.day => 1,
+      PeriodUnit.week => 7,
+      PeriodUnit.month => 30,
+      PeriodUnit.year => 365,
+      PeriodUnit.unknown => 0,
+    };
+    final days = perUnit * intro.periodNumberOfUnits * intro.cycles;
+    return days > 0 ? days : null;
+  }
 
   static int _rank(String id) => switch (id) {
     ProProductIds.annual => 0,
@@ -407,10 +425,7 @@ class PurchaseService extends ChangeNotifier {
           if (next.productId != null)
             prefs.setString(_keyProduct, next.productId!),
           if (next.lastVerified != null)
-            prefs.setString(
-              _keyVerified,
-              next.lastVerified!.toIso8601String(),
-            ),
+            prefs.setString(_keyVerified, next.lastVerified!.toIso8601String()),
         ]),
       );
     }

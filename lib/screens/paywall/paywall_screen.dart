@@ -104,7 +104,11 @@ class _PaywallScreenState extends State<PaywallScreen> {
     }
 
     // ---- The real thing --------------------------------------------------
-    if (purchases.entitlement.active) return const _AlreadyPro();
+    if (purchases.entitlement.active) {
+      return _AlreadyPro(
+        lifetime: purchases.entitlement.productId == ProProductIds.lifetime,
+      );
+    }
 
     if (!app.proOffered) {
       return _StoreUnavailable(
@@ -116,7 +120,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
     final prices = [
       for (final p in purchases.products)
-        (id: p.id, price: p.price, subscription: p.isSubscription),
+        (
+          id: p.id,
+          price: p.price,
+          subscription: p.isSubscription,
+          trialDays: p.freeTrialDays,
+        ),
     ];
 
     return _Paywall(
@@ -141,27 +150,29 @@ class _PaywallScreenState extends State<PaywallScreen> {
     );
   }
 
-  static const List<({String id, String price, bool subscription})>
-  _samplePrices = [
+  static const List<_Price> _samplePrices = [
     (
       id: ProProductIds.annual,
       price: ProCopy.samplePriceAnnual,
       subscription: true,
+      trialDays: 7,
     ),
     (
       id: ProProductIds.monthly,
       price: ProCopy.samplePriceMonthly,
       subscription: true,
+      trialDays: null,
     ),
     (
       id: ProProductIds.lifetime,
       price: ProCopy.samplePriceLifetime,
       subscription: false,
+      trialDays: null,
     ),
   ];
 }
 
-typedef _Price = ({String id, String price, bool subscription});
+typedef _Price = ({String id, String price, bool subscription, int? trialDays});
 
 class _Paywall extends StatelessWidget {
   const _Paywall({
@@ -188,11 +199,20 @@ class _Paywall extends StatelessWidget {
   final VoidCallback onBuy;
   final VoidCallback onRestore;
 
-  String get _annualPrice {
+  /// The terms of the plan that is selected, not of the annual plan: the line
+  /// under the prices is what the person is agreeing to when they continue.
+  String? get _termsLine {
     for (final p in prices) {
-      if (p.id == ProProductIds.annual) return p.price;
+      if (p.id != selected) continue;
+      final trialDays = p.trialDays;
+      return switch (p.id) {
+        ProProductIds.lifetime => ProCopy.lifetimePriceLine(p.price),
+        ProProductIds.monthly => ProCopy.monthlyPriceLine(p.price),
+        _ when trialDays != null => ProCopy.trialLine(trialDays, p.price),
+        _ => ProCopy.plainPriceLine(p.price),
+      };
     }
-    return prices.isEmpty ? '' : prices.first.price;
+    return null;
   }
 
   @override
@@ -234,8 +254,7 @@ class _Paywall extends StatelessWidget {
           if (errorMessage != null)
             NoticeBlock(label: 'Not charged', body: errorMessage!),
 
-          if (_annualPrice.isNotEmpty)
-            CcBody(ProCopy.plainPriceLine(_annualPrice), muted: true),
+          if (_termsLine case final line?) CcBody(line, muted: true),
 
           CcStack(
             gap: CcGap.sm,
@@ -270,7 +289,11 @@ class _Paywall extends StatelessWidget {
 
 /// What a Pro subscriber sees if they land here. Nothing to buy.
 class _AlreadyPro extends StatelessWidget {
-  const _AlreadyPro();
+  const _AlreadyPro({this.lifetime = false});
+
+  /// A lifetime purchase has nothing to renew or cancel, and must not be told
+  /// that it does.
+  final bool lifetime;
 
   @override
   Widget build(BuildContext context) {
@@ -284,9 +307,12 @@ class _AlreadyPro extends StatelessWidget {
               const CcBackBar(),
               FieldLabel('CalmCheck Pro'),
               const CcHeadline('You already have Pro.'),
-              const CcSub(
-                'Renewal and cancellation are handled by the store you bought '
-                'it from. Nothing to buy here.',
+              CcSub(
+                lifetime
+                    ? 'Lifetime. A single payment, nothing to renew or cancel. '
+                          'Nothing to buy here.'
+                    : 'Renewal and cancellation are handled by the store you '
+                          'bought it from. Nothing to buy here.',
               ),
               const CcRule(),
               const ProList(),
