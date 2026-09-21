@@ -35,7 +35,7 @@ images at 824×1830, a size App Store Connect rejects, and `PurchaseService
 .forTest()` defaults to `unavailable` — so the paywall renders the "Pro is not
 available on this device" screen instead of the paywall. Neither is any use to
 a reviewer. `test/submission_shots_test.dart` exists for exactly this: 440×956
-logical at pixelRatio 3 = **1320×2868**, Apple's 6.9" iPhone size, with a store
+logical at pixelRatio 3 = **1284×2778**, Apple's 6.5" iPhone size, with a store
 that has products in it at the real prices ($2.99 / $19.99 / $59.99).
 
 ```
@@ -352,3 +352,94 @@ Not done, on purpose:
 
 Also open: `RevenueCatKeys.google` is still empty and must be filled before any
 Play upload.
+
+---
+
+## 8. App Store Connect listing — state as of 9 Sep 2026
+
+Entered through the web console. `1.0.0` is still `PREPARE_FOR_SUBMISSION` and
+nothing has been submitted.
+
+**Saved and confirmed on the version page:**
+
+- Promotional text, description, keywords (93/100), Support URL, Marketing URL,
+  Copyright — the values in `store-submission.md` §7.
+- Support URL is `https://betterintegrations.org/calmcheck`, chosen because that
+  page carries a CONTACT section with the mailbox. Verified live, as was
+  `/calmcheck/privacy`. The doc previously listed a `/calmcheck/support` path
+  that does not exist — do not use it.
+
+**Screenshots: uploaded**, but only after two separate failures.
+
+First, a six-file upload in one call lands asynchronously and **arrives in
+scrambled order**: the result was panic, crisis, share, privacy, card, home.
+Order is not cosmetic — Apple uses only the first three on install sheets. They
+were deleted, and the slot is empty again. **Upload them one file at a time**,
+in the §9 order, confirming each before the next.
+
+Second, and only visible once the slot was empty: **the size was wrong.** This
+app's record offers exactly one iPhone slot — **6.5"** — which takes 1242×2688
+or 1284×2778 and nothing else, and Apple reuses that one set for every other
+display size. The 6.9" frames the pipeline had been rendering (1320×2868) are
+refused with "the dimensions of one or more screenshots are wrong"; they are
+not scaled down. `test/submission_shots_test.dart` now renders 428×926 at 3x
+and `tool/make_store_screenshots.py` composes at 1284×2778, with the screen
+inset re-centred for the narrower frame. Re-run both; `build/store/` is already
+regenerated at the right size.
+
+The IAP review screenshot attached to the three products was uploaded at
+1320×2868 and **was accepted** — that field has a much looser floor than the
+listing slot, so it does not need replacing.
+
+Both slots are now filled, one file at a time, in the §9 order: six 6.5"
+iPhone frames and six 13" iPad frames.
+
+**The iPad slot is not optional.** `TARGETED_DEVICE_FAMILY = "1,2"` means the
+binary claims iPad support, so "You must upload a screenshot for 13-inch iPad
+displays" is a hard blocker on Add for Review, and that slot takes only
+2064×2752 or 2048×2732. `test/submission_shots_test.dart` now takes
+`--dart-define=SHOT_DEVICE=ipad13` (1032×1376 at 2x) and the compositor takes a
+device argument; caption type scales by the square root of the width ratio,
+because scaling it by width alone eats the squarer iPad frame. Dropping to
+device family 1 would remove the requirement, at the cost of a new build.
+
+Rendering at iPad size exposed one real layout fact: the card view's action bar
+sits inside the scroll view, and at 1376 points it lands half below the fold —
+a marketing frame with a button sliced in two. The shot helper now jumps a
+screen to the end of its scroll when the overflow is under 240px, which is the
+difference between "there is more below" and "this looks broken". It changes
+none of the six iPhone frames; only the paywall shot moved.
+
+**Then the rest of the version, in one pass through the console.** The Add for
+Review validation listed seven blockers; six are now cleared:
+
+- **Primary category** Health & Fitness. **Subtitle** was empty and is now the
+  §7 line, 29 of 30 characters.
+- **Content rights**: does not contain, show, or access third-party content.
+- **Age ratings** (Apple's seven-step 2025 questionnaire): every feature and
+  capability No; Mature Themes, Sexuality, Violence and Chance-Based all None.
+  Medical or Wellness is the only place this app has to think: **Medical or
+  Treatment Information = Infrequent, Health or Wellness Topics = Yes.** None
+  would contradict the medication field and the helplines; Frequent reads as a
+  treatment app and costs several years of age rating. Calculated: **13+**
+  (12+ on systems earlier than version 26 — the §6 target).
+- **App Privacy**: one data type, Purchases → used for App Functionality, not
+  linked to identity, not used for tracking. Published. ML Kit diagnostics
+  stayed undeclared, per §5 — the position to defend if a reviewer asks.
+- **Pricing**: $0.00 in all 175 countries, availability set to all of them.
+- **App Review information**: contact name and `hello@betterintegrations.org`,
+  **"Sign-in required" unchecked** (it defaults to checked, which would have
+  demanded credentials for an app that has no account), and the §8 notes
+  pasted in full. Version release left on "Automatically release".
+
+**Blocked on one field:** App Review → Contact Information → phone number is
+required, and the page will not save without it. Everything above is entered
+but unsaved until it is filled.
+
+**Still untouched:** the three IAP products, which for a first version must be
+submitted alongside the app from the version page's In-App Purchases section.
+
+One inconsistency found while verifying: the public page at
+`betterintegrations.org/calmcheck` still says **"iOS 14 and later"** in two
+places. The floor was raised to iOS 15 in `78b4d34`. The published page is now
+wrong and should be corrected before the listing points at it.

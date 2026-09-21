@@ -1,14 +1,18 @@
-/// Renders the App Store submission screenshots at Apple's 6.9" size.
+/// Renders the App Store submission screenshots at the sizes the console takes.
 ///
 /// Run with:  flutter test test/submission_shots_test.dart
-/// Output:    build/submission/*.png at 1320x2868
+///            flutter test test/submission_shots_test.dart --dart-define=SHOT_DEVICE=ipad13
+/// Output:    build/submission/*.png at 1284x2778 (6.5" iPhone)
+///            build/submission-ipad/*.png at 2064x2752 (13" iPad)
 ///
 /// This is deliberately separate from `render_shots_test.dart`, which renders
 /// small design-review images at 824x1830 — a size App Store Connect rejects.
 /// Two differences matter here:
 ///
-///   1. **Size.** 440x956 logical at pixelRatio 3 is exactly 1320x2868, the
-///      6.9" iPhone dimensions App Store Connect accepts.
+///   1. **Size.** 428x926 logical at pixelRatio 3 is exactly 1284x2778 — the
+///      6.5" iPhone size. That is the slot this app's App Store Connect
+///      record actually offers, and it rejects anything else; a 6.9" frame
+///      (1320x2868) is refused outright rather than scaled down.
 ///   2. **The paywall has a store.** `PurchaseService.forTest()` defaults to
 ///      `unavailable`, so the design-review shot renders the "Pro is not
 ///      available on this device" screen rather than the paywall. Apple's IAP
@@ -38,11 +42,38 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const _out = 'build/submission';
+/// Which device the frames are rendered for:
+///
+///     flutter test test/submission_shots_test.dart
+///     flutter test test/submission_shots_test.dart --dart-define=SHOT_DEVICE=ipad13
+///
+/// App Store Connect asks for both when the binary declares iPad support
+/// (`TARGETED_DEVICE_FAMILY = "1,2"`), and refuses the submission until the
+/// iPad slot is filled — a phone-sized image will not stand in for it.
+const _device = String.fromEnvironment('SHOT_DEVICE', defaultValue: 'iphone65');
 
-/// 6.9" iPhone: 440x956 points, 3x. App Store Connect takes 1320x2868.
-const Size _logical = Size(440, 956);
-const double _scale = 3;
+/// Logical size, pixel ratio and output directory per device. The pixel sizes
+/// these produce are the only ones the two slots accept:
+///
+///   iphone65  428x926 @3  = 1284x2778   (also takes 1242x2688)
+///   ipad13   1032x1376 @2 = 2064x2752   (also takes 2048x2732)
+class _Device {
+  const _Device(this.logical, this.scale, this.out);
+
+  final Size logical;
+  final double scale;
+  final String out;
+}
+
+const Map<String, _Device> _devices = {
+  'iphone65': _Device(Size(428, 926), 3, 'build/submission'),
+  'ipad13': _Device(Size(1032, 1376), 2, 'build/submission-ipad'),
+};
+
+final _Device _target = _devices[_device]!;
+final Size _logical = _target.logical;
+final double _scale = _target.scale;
+final String _out = _target.out;
 
 /// The real prices configured in App Store Connect, so the paywall shot shows
 /// what a US customer actually sees rather than invented numbers.
@@ -144,6 +175,23 @@ void main() {
       ),
     );
     await tester.pump(const Duration(milliseconds: 2600));
+
+    // A screen that overflows its viewport by a hair leaves a half-cut control
+    // at the bottom edge, which reads as a rendering bug in a marketing frame
+    // rather than as "there is more below". Where the slack is small — the
+    // card view on iPad is the case that prompted this — show the end of the
+    // screen instead of the middle of a button. Longer screens are left where
+    // they are; scrolling those away from the top would change the subject.
+    final scrollables = find.byType(Scrollable);
+    if (scrollables.evaluate().isNotEmpty) {
+      final position = tester
+          .state<ScrollableState>(scrollables.first)
+          .position;
+      if (position.maxScrollExtent > 0 && position.maxScrollExtent <= 240) {
+        position.jumpTo(position.maxScrollExtent);
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+    }
 
     final boundary =
         key.currentContext!.findRenderObject() as RenderRepaintBoundary;

@@ -12,8 +12,8 @@ code they will ask about. Work top to bottom the first time.
 | Android application id | `app.calmcheck` (debug builds install as `app.calmcheck.debug`) |
 | iOS bundle id | `app.calmcheck` (set in the Xcode project; matches Android) |
 | Display name | CalmCheck |
-| Version | `pubspec.yaml` `version: 1.0.0+1` — the part before `+` is the public version, after it the build number |
-| Minimum OS | Android 7.0 (API 24 — Flutter's floor wins over the Gradle `minSdk 23` line), iOS 14.0 |
+| Version | `pubspec.yaml` `version: 1.0.0+3` — the part before `+` is the public version, after it the build number |
+| Minimum OS | Android 7.0 (API 24 — Flutter's floor wins over the Gradle `minSdk 23` line), iOS 15.0 |
 
 Bump the build number on every upload, even a rejected one.
 
@@ -162,7 +162,68 @@ detail.
 
 ---
 
-## 7. Review notes
+## 7. Listing copy
+
+Written for the App Store fields. The number after each field is Apple's character
+limit; every value below is within it.
+
+**Name** (30) — `CalmCheck`
+
+**Subtitle** (30) — `Panic help that works offline`
+
+**Promotional text** (170, editable without a new version)
+
+> Everything a panicking person needs is one tap from the home screen, and none
+> of it needs a signal. Your cards and contacts never leave the phone.
+
+**Keywords** (100, comma-separated, no spaces after commas)
+
+`panic,anxiety,breathing,grounding,calm,offline,crisis,helpline,care card,attack,relief,coping`
+
+**Description** (4000)
+
+> CalmCheck is for the minutes when thinking clearly is hard.
+>
+> One tap from the home screen starts a paced breathing exercise you can feel
+> rather than read — the rhythm is drawn and haptic, so it works with the screen
+> at arm's length and your eyes half closed. Grounding exercises sit beside it.
+> Crisis helplines are one tap away, chosen for where you are, and you can
+> override the region by hand.
+>
+> CARE CARDS
+>
+> A care card is a page about one person: what helps them, what does not, who to
+> call. Make one for yourself so somebody else knows what to do, or make one
+> with a person you look after. Cards can be shared by QR code or file — phone
+> to phone, no account, no server in between.
+>
+> NOTHING LEAVES YOUR PHONE
+>
+> There is no account and no sign-in. Your cards, your contacts and how often
+> you open the app stay on the device. The only network traffic the app makes is
+> validating an in-app purchase. Breathing, grounding, the crisis helplines and
+> your first care card are free forever, and are never put behind the paywall.
+>
+> CALMCHECK PRO
+>
+> Pro adds unlimited care cards, photos on cards, PDF export and reminders.
+> Available monthly, annually, or as a one-time purchase.
+>
+> NOT A MEDICAL DEVICE
+>
+> CalmCheck does not diagnose or treat anything, and it is not a substitute for
+> professional care. If you are in danger, contact your local emergency number.
+
+**Privacy policy URL** — `https://betterintegrations.org/calmcheck/privacy` (published)
+
+**Support URL** — required by Apple, and the one field here that is not yet
+confirmed to exist. It must resolve to a real page with a way to reach you;
+`https://betterintegrations.org/calmcheck` works if that page carries the
+support mailbox, otherwise publish `/calmcheck/support` before submitting.
+
+---
+
+## 8. Review notes
 
 Paste something like this into both review forms.
 
@@ -170,8 +231,9 @@ Paste something like this into both review forms.
 > analytics. The only network use is validating the Pro in-app purchase
 > (RevenueCat); everything a person puts into the app stays on the device.
 >
-> No sign-in is needed to review it. Two example care cards are present on first
-> launch so every screen has content.
+> No sign-in is needed to review it. The card library starts empty by design —
+> tap "Make a card" on Home to create one in about twenty seconds, which is the
+> flow every card screen depends on.
 >
 > The app is explicitly **not** a medical device. The disclaimer appears during
 > onboarding, in Settings → About, and in the terms: it does not diagnose or
@@ -198,30 +260,72 @@ Paste something like this into both review forms.
 
 ---
 
-## 8. Assets
+## 9. Assets
 
 | Asset | Size | Where |
 |---|---|---|
 | App icon | 1024×1024, no alpha, no rounded corners | `store/icon-1024.png` |
 | Android adaptive icon | foreground, background, monochrome | `android/app/src/main/res/mipmap-*` |
 | iOS icon set | all sizes | `ios/Runner/Assets.xcassets/AppIcon.appiconset` |
-| Screenshots | 1179×2556 portrait, six of them | not generated — see the shot order below |
+| Screenshots | 1284×2778 portrait (6.5"), six of them | `build/store/` — rendered, see below |
+| IAP review screenshot | same render, the paywall frame | `build/submission/07-paywall.png` |
 | Play feature graphic | 1024×500 | not generated |
 
-`flutter test test/render_shots_test.dart` renders screens to `build/shots/`
-with the real bundled fonts, which is a good starting point for the
-screenshots. The order the design specifies, because the order is the pitch:
+The listing frames are generated, not captured by hand:
 
-1. HOME — *Calm in one tap.*
-2. PANIC-02 mid-exhale — *Paced breathing you can feel, not just watch.*
-3. PANIC-02 or HOME — *No signal needed. Ever.*
-4. CARD-VIEW, the Ravi card — *What to do. What not to do. In seconds.*
-5. CARD-SHARE, the QR — *Share it with anyone. No account needed.*
-6. SET-02, privacy — *Nothing leaves your phone.*
+```bash
+flutter test test/submission_shots_test.dart   # build/submission/*.png
+python3 tool/make_store_screenshots.py         # build/store/*.png, captioned
+```
+
+**Size is not negotiable and is not 6.9".** This app's App Store Connect record
+offers a single iPhone slot — 6.5" — and accepts only 1242×2688 or 1284×2778;
+a 6.9" frame (1320×2868) is refused with "the dimensions of one or more
+screenshots are wrong" rather than scaled down. Apple then reuses that one set
+for every other display size. The pipeline renders 428×926 logical at 3x, which
+is 1284×2778, and flattens the output because App Store Connect also rejects an
+alpha channel. Do not use `test/render_shots_test.dart` for this: it renders
+824×1830 design-review images, which the console rejects, from a paywall with
+no store behind it.
+
+### Marketing images for LinkedIn
+
+The same shots feed the social frames, which are not store assets and are not
+submitted anywhere:
+
+```bash
+python3 tool/make_social_images.py             # build/social/<ratio>/*.png
+python3 tool/make_social_images.py square      # just the one ratio
+```
+
+Four slots, all of them LinkedIn's: `landscape` 1200×627 (link preview and the
+classic feed image), `square` 1200×1200 (feed, and one slide of a document
+carousel), `portrait` 1080×1350 (the tallest the feed shows uncropped), and
+`banner` 1584×396 (profile cover, laid out so the avatar never lands on type).
+Seven posts in the same order as the listing frames, so a carousel and the
+store tell the story the same way.
+
+The copy lives in `POSTS` at the top of the script and claims nothing that has
+not shipped — the footer is a URL, not "download on the App Store", because the
+app is on TestFlight and has not been through review. `CTA` is the line to edit
+when that changes.
+
+`build/store/` comes out numbered in the order the design specifies, because
+the order is the pitch — and only the first three reach the install sheets:
+
+1. `01-home` — *Calm in one tap.*
+2. `02-panic` — *Breathing you can feel, not just watch.*
+3. `03-crisis` — *No signal needed. Ever.*
+4. `04-card-view`, the Ravi card — *What to do. What not to do.*
+5. `05-share`, the QR — *Share it with anyone.*
+6. `06-privacy` — *Nothing leaves your phone.*
+
+Upload them **one file at a time**, confirming each before the next. A six-file
+drag lands asynchronously and arrives shuffled.
 
 ---
 
-## 9. Building
+## 10. Building
 
 ```bash
 flutter test                                  # 226 tests
@@ -241,7 +345,7 @@ in the binary on purpose so scanning works with no signal.
 
 ---
 
-## 10. Before every upload
+## 11. Before every upload
 
 - [ ] Build number incremented
 - [ ] `flutter analyze` clean and `flutter test` green
